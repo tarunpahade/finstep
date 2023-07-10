@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "finstep2",
+    "name": "Finstep",
     "slug": "finstep2",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/finstep.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/mobile.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
       "plugins": [
@@ -29,22 +29,34 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tarun.finstep",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/assets/images/finstep.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.tarun.pahade.finstep2"
+      "package": "com.finsteps.finstep",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "aaedae10-bd91-48a0-ad30-8df5796d07e2"
+        "projectId": "2ad8fcd6-44ba-4ee7-bfdd-b0672e46ddf4"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/aaedae10-bd91-48a0-ad30-8df5796d07e2"
+    },
+    "plugins": [
+      "sentry-expo"
+    ]
   }
 }

@@ -9,164 +9,227 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { COLORS } from "../../constants";
+import { io } from "socket.io-client";
+import { ActivityIndicator } from "react-native";
+import {
+  useGetAnalyticsQuery,
+  useParentToChildMutation,
+  useStoreNotificationMutation,
+} from "../../store/apiSlice";
+import { useSelector } from "react-redux";
+import FullPageHeader from "../../components/navbar/smallNavbar";
+import { set } from "react-native-reanimated";
 
-export const AddMoneyToAccount = () => {
-  const [amount, setAmount] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [expirationDate, setExpirationDate] = useState("");
-  const [upiId, setUpiId] = useState("");
-  const [card, setcard] = useState(false);
+export const AddMoneyToAccount = ({ route }) => {
+  if (route.params) {
+    console.log(route.params, "this is route params");
+  }
+  const [
+    newNotification,
+    { data, error: errorWhileDenyingReq, isLoading: Load },
+  ] = useStoreNotificationMutation();
+  const account = useSelector((state) => state.account.account);
+  const parentId = useSelector((state) => state.parentAccount.account.userId);
+  const [amount, setAmount] = useState(route.params?.amount || 0);
+  const [makeDenyRequestFormVisible, setmakeDenyRequestFormVisible] = useState(
+    false
+  );
+  const socket = io("https://backend-5ig7.onrender.com/");
 
-  const handleAddMoney = () => {
-    if (amount === "") {
-      alert("Please enter an amount");
-      return;
+  const [to, setto] = useState(route.params?.to || account.name);
+  const [payBeta, { data2, error, isLoading }] = useParentToChildMutation();
+  const [denyReason, setDenyReason] = useState("");
+
+  if (error) {
+    console.log("hello bro your code sucks", error.error);
+  }
+
+  const handleDenyMoneyGoBack = async () => {
+    setmakeDenyRequestFormVisible(false);
+  };
+  const handleDenyMoney = async () => {
+    console.log(denyReason, account.userId, parentId);
+
+    const deniedRequestData = {
+      amount,
+      userId: route.params.childId,
+      type: "Parent Denied The Request",
+      note: route.params.reason,
+      reason: denyReason,
+    };
+    const result = await newNotification(deniedRequestData);
+    console.log(result.data.status);
+    if (result.data.status === "Ok") {
+      alert("Request Sent");
+      setDenyReason('')
+      setmakeDenyRequestFormVisible(false)
+setAmount('')
+setto('')
+      socket.emit("RequestedForMoney", result.data);
+    } else {
+      alert("Internal server error");
+    }
+  };
+
+  const handleAddMoney = async () => {
+    const fatu = {
+      amount,
+      studentId: account.userId,
+      parentId: parentId,
+    };
+    console.log(parentId);
+    const taskapproval = await payBeta(fatu);
+
+    if (taskapproval.data.status === "Zero Balance") {
+      setAmount("");
+
+      alert(
+        "Add money to your account",
+        "There is no balance in your account .",
+        [
+          {
+            text: "Add Money",
+            onPress: () => navigation.navigate("Add account"),
+          },
+        ]
+      );
     }
 
-    if (cardNumber === "") {
-      alert("Please enter your card number");
-      return;
+    if (taskapproval.data.status === "Ok") {
+      alert("Money Sent Successfully");
+      setAmount("");
+    } else {
+      alert("Insufficient Balance");
     }
-
-    if (cvv === "") {
-      alert("Please enter your CVV");
-      return;
-    }
-
-    if (expirationDate === "") {
-      alert("Please enter your expiration date");
-      return;
-    }
-
-    if (upiId === "") {
-      alert("Please enter your UPI ID");
-      return;
-    }
-
-    // TODO: Add money to account
   };
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Modal visible={card}>
-          <View style={styles.card}>
-            <Text style={styles.label}>Card Number</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Card Number"
-              onChangeText={setCardNumber}
+    <View style={styles.container}>
+      <Text style={styles.title}>Enter Amount</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Amount:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter amount"
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={setAmount}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>To:</Text>
+        <TextInput style={styles.input} value={to} editable={false} />
+      </View>
+      <TouchableOpacity style={styles.button} onPress={handleAddMoney}>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.buttonText}>Pay</Text>
+        )}
+      </TouchableOpacity>
+
+      {route.params && (
+        <View style={styles.denyReasonContainer}>
+          <View style={[styles.inputContainer, { alignItems: "center" }]}>
+            <Text style={styles.label}>Or</Text>
+          </View>
+          <Modal visible={makeDenyRequestFormVisible}>
+            <FullPageHeader
+              data={{ name: "Deny Request" }}
+              handleBackButton={handleDenyMoneyGoBack}
             />
-            <Text style={styles.label}>Name on Card</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Card Number"
-              onChangeText={setCardNumber}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                marginTop: "5%",
-                justifyContent: "space-around",
-              }}
-            >
-              <View>
-                <Text style={styles.label}>CVV</Text>
+
+            <View style={styles.container}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Deny Request:</Text>
                 <TextInput
-                  style={[styles.input, { width: 100 }]}
-                  placeholder="CVV"
-                  onChangeText={setCvv}
+                  placeholder="Add a reason to deny request"
+                  style={styles.input}
+                  value={denyReason}
+                  onChangeText={setDenyReason}
                 />
+                <View style={styles.inputContainer}>
+                <Text style={styles.label}>Reason :</Text>
+              
+                <TextInput  style={styles.input} value={route.params.reason} editable={false} />
+                </View>
+
               </View>
-              <View>
-                <Text style={styles.label}>Expiration Date</Text>
-                <TextInput
-                  style={[styles.input, , { width: 150 }]}
-                  placeholder="Expiration Date"
-                  onChangeText={setExpirationDate}
-                />
-              </View>
+              <TouchableOpacity style={styles.button} onPress={handleDenyMoney}>
+                <Text style={styles.buttonText}>Deny Request</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-          <View style={styles.footer}>
-            <Button
-              title="Add Money"
-              onPress={handleAddMoney}
-              style={styles.button}
-            />
-          </View>
-        </Modal>
-
-
-<View style={{alignItems:'center'}} >
-          <TouchableOpacity style={styles.upi}
+          </Modal>
+          <TouchableOpacity
+            style={styles.button}
             onPress={() => {
-              setcard(true);
+              setmakeDenyRequestFormVisible(true);
             }}
           >
-            <Text style={styles.label}>Debit Card </Text>
-            <View style={{flexDirection:"row"}}>
-            <MaterialIcons  name="add-circle" size={28} color={COLORS.blue} />
-
-            </View>
-
-
+            <Text style={styles.buttonText}>Deny Request</Text>
           </TouchableOpacity>
-        <View style={styles.upi}>
-          <Text style={styles.label}>UPI</Text>
-          <View style={{flexDirection:"row"}}>
-          <MaterialIcons  name="add-circle" size={28} color={COLORS.blue} />
-          
-
-          </View>
         </View>
-      </View>
-      </View>
-
-      </ScrollView>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    
+    width: "80%",
+    marginLeft: "10%",
+    marginTop: "20%",
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    padding: 10,
-  },
-  card: {
-    marginVertical: 10,
+  inputContainer: {
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
   },
   button: {
-    backgroundColor: "blue",
-    color: "white",
-    height: 40,
-    width: 100,
+    backgroundColor: "#007bff",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 5,
-    margin: 10,
   },
-  upi:{
-    padding:10,
-    justifyContent:'space-between',
-    flexDirection:'row',
-    backgroundColor:"#eee",
-    marginVertical:10,
-borderWidth:0.5,
-width:'80%',
-  }
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    justifyContent: "center",
+    textAlign: "center",
+  },
+
+  denyButton: {
+    backgroundColor: "red",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  denyReasonContainer: {
+    marginTop: 20,
+  },
+  denyReasonInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+  },
 });

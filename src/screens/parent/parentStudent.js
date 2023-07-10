@@ -4,27 +4,63 @@ import {
   View,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView,
   Image,
   SafeAreaView,
   TouchableOpacity,
-Modal
+  Modal
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Buttons } from "../../components/buttonContainer/buttons";
 import { COLORS, icons } from "../../constants";
 import { homestyles } from "../../styles/homestyles";
+import { useSelector } from "react-redux";
+import { useGetAnalyticsQuery, useGetLoginDetailsQuery } from "../../store/apiSlice";
+import { ActivityIndicator } from "react-native";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
+
+
 export const ParentStudentHome = ({ navigation }) => {
-  const [notificationclick, setnotificationclick] = useState(false);
+  
+const userData=useSelector((state)=>state.account.account.name)
+const user=useSelector((state)=>state.account)
+
+const [help, sethelp] = useState(false);
+
+const { data, isLoading, error,refetch, } = useGetLoginDetailsQuery(user.account.userId);
+const socket = io("https://backend-5ig7.onrender.com/");
+
+useEffect(() => {
+  // Listen for the 'newOrder' event
+  socket.on("ApproveTask", (Task) => {
+  
+    refetch()
+  });
+  // Clean up the event listener on component unmount
+  return () => {
+    socket.off("ApproveTask");
+  };
+}, []);
 
 
-    const [help, sethelp] = useState(false);
+
+
+if (isLoading ) {
+  return  <ActivityIndicator size={'large'} style={{flex:1}} />
+}
+if (error) {
+  return <Text>Error {error.error}</Text>;
+}
+
+
+
+
     function transaction() {
       navigation.navigate("Transactions");
     }
 
   function notification() {
-    setnotificationclick(true);
+  
   }
   function helpClick() {
     sethelp(true);
@@ -34,7 +70,7 @@ export const ParentStudentHome = ({ navigation }) => {
   }
   
   function savings() {
-    navigation.navigate("Savings");
+    navigation.navigate("Savings", { fromWho: 'parent' });
   }
   function parentFund() {
     navigation.navigate("Parent Fund");
@@ -48,7 +84,7 @@ export const ParentStudentHome = ({ navigation }) => {
     navigation.navigate("Parent Task");
   }
   function addMoney() {
-    navigation.navigate("Add Money");
+    navigation.navigate("Add account");
   }
   const featuresData = [
     {
@@ -70,7 +106,7 @@ export const ParentStudentHome = ({ navigation }) => {
       id: 3,
       icon: icons.savings,
       backgroundColor: COLORS.lightGreen,
-      description: "Add Money",
+      description: "Send Money",
       onpress:addMoney
   ,   
   
@@ -109,30 +145,27 @@ export const ParentStudentHome = ({ navigation }) => {
           Keyboard.dismiss();
         }}
       >
-        <ScrollView style={{ backgroundColor: "#333" }}>
+        <View style={{ backgroundColor: "#333" }}>
           <View
             style={[homestyles.container, { paddingBottom: 250, paddingTop: 5 }]}
           >
             <View style={homestyles.subContainer}>
+
+
+            
             <View style={homestyles.imgContainer}>
             <View>
               <Text style={homestyles.Heading}>Welcome Back,</Text>
-              <Text style={homestyles.SubHeading}>James Murray</Text>
-            </View>
+              <Text style={homestyles.SubHeading}>View {userData}</Text>
+              <Text style={homestyles.SubHeading}>Current Balance {data.data[0].balance}</Text>
+  
+              </View>
 <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',width:'25%'}}>
-            <MaterialIcons name="help" size={23} color="#000" onPress={helpClick} />
+            <MaterialIcons name="help" size={1} color="#000" onPress={helpClick} />
 
             <TouchableOpacity onPress={notification}>
-              <Image
-                source={{
-                  uri:
-                    "https://images.pexels.com/photos/936229/pexels-photo-936229.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
-                }}
-                style={homestyles.ProfileImage}
-              />
-              <View style={homestyles.ProfileImageNotification}>
-             
-              </View>
+            <Image source={require('../../assets/icons/teen.png')} style={homestyles.ProfileImage} />
+
             </TouchableOpacity>
           </View>
           </View>
@@ -168,7 +201,7 @@ export const ParentStudentHome = ({ navigation }) => {
                
               </Modal>
           </View>
-        </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );

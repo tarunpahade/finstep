@@ -42,14 +42,15 @@ export const globastyles=StyleSheet.create({
       
       },
       notificationNav:{
+        marginTop:60,
         flexDirection:'row',
-        width:'93%',
-        justifyContent:'center',
+        width:'50%',
+        justifyContent:'space-between',
         alignItems:'center'
         ,margin:20
       },
       bgText:{
-        fontSize:19,
+        fontSize:18,
         fontWeight:'bold',
         paddingLeft:2,
         

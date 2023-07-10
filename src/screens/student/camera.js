@@ -12,7 +12,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Video } from "expo-av";
 import { useUploadImageMutation } from "../../store/apiSlice";
 import { useNavigation } from "@react-navigation/native";
-export default function CameraScreen(props) {
+import { useDispatch, useSelector } from "react-redux";
+export default function CameraScreen() {
 
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
@@ -21,20 +22,24 @@ export default function CameraScreen(props) {
   const [videoSource, setVideoSource] = useState(null);
   const [imageUri, setImageUri] = useState('');
   const cameraRef = useRef();
+  const [uploadImage, {data,error,isLoading}] =  useUploadImageMutation()
+  const navigation=useNavigation()
+  const taskDetails=useSelector((state)=>state.studentTask)
+
+  console.log(taskDetails,'thos is camers');  
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
-  
-  const [uploadImage, {data,error,isLoading}] =  useUploadImageMutation()
+  console.log('whst is wrong?');
+
   console.log(error,isLoading);
- const taskDetails=props.route.params.taskDetails.item
+
   const onCameraReady = () => {
     setIsCameraReady(true);
   };
-  const navigation=useNavigation()
   const takePicture = async () => {
     if (cameraRef.current) {
       const options = { quality: 0.5, base64: true, skipProcessing: true };
@@ -54,7 +59,7 @@ export default function CameraScreen(props) {
       try {
         const videoRecordPromise = cameraRef.current.recordAsync();
         if (videoRecordPromise) {
-          setIsVideoRecording(true);
+          // setIsVideoRecording(true);
           const data = await videoRecordPromise;
           const source = data.uri;
           if (source) {
@@ -71,7 +76,7 @@ export default function CameraScreen(props) {
   const stopVideoRecording = () => {
     if (cameraRef.current) {
       setIsPreview(false);
-      setIsVideoRecording(false);
+    //  setIsVideoRecording(false);
       cameraRef.current.stopRecording();
     }
   };
@@ -125,9 +130,9 @@ navigation.navigate('Tasks')
 
   async function  uploadToDatabase(data){
     
-   await uploadImage(data)
-console.log('sent');
-
+const sendData=   await uploadImage(data)
+console.log(sendData);
+navigation.navigate('Tasks')
  
 }
 
@@ -142,7 +147,7 @@ console.log('sent');
       activeOpacity={0.7}
       disabled={!isCameraReady}
       onPress={()=>{ 
-   
+
   uploadToDatabase({imageUri:imageUri.base64,id:taskDetails._id})
       
       }}

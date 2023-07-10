@@ -1,8 +1,6 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
-
-
 import {
   TouchableOpacity,
   Text,
@@ -10,25 +8,62 @@ import {
   StyleSheet,
   Button,
   TextInput,
-  Animated
+  Animated,
+  ActivityIndicator
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { pagestyles } from "../../styles/pagesStyles";
 import { COLORS } from "../../constants";
 import { Feather } from '@expo/vector-icons';
+import { useStudentPaysMutation } from "../../store/apiSlice";
+import { useSelector } from "react-redux";
 
-export const RequestMoney = ({ navigation }) => {
+export const Payment = ({ navigation }) => {
   const [amount, setAmount] = useState('');
   const [phone, setPhone] = useState('');
   const [note, setNote] = useState('');
-  const tickAnimation = useRef(new Animated.Value(0)).current;
+  const [payBeta, { data, error, isLoading }] = useStudentPaysMutation();
+  const studentId=useSelector((state) => state.account.account.userId)
   const animation = useRef(new Animated.Value(1)).current;
-  const handlePay = () => {
-    setAmount('');
-    setPhone('');
-    setNote('');
-  };
   
+  if (isLoading) {
+    return  <ActivityIndicator size={'large'} style={{flex:1}} />;
+  }
+  if (error) {
+    return <Text>Error{error.error}</Text>;
+  }
+  
+const handleScan=()=>{
+  navigation.navigate("Qr Code");
+}
+
+async function studentPay(taskDetails){
+console.log('here bro'); 
+  const fatu={
+  to:'Vendor',
+    studentId: studentId,
+    amount: amount,
+    note: note,
+    phone: phone
+    
+  }
+  const taskapproval = await payBeta(fatu);
+  console.log(taskapproval);
+      if (taskapproval.data.status === "Ok") {
+        alert("Task Approved");
+        setAmount('');
+        setPhone('');
+        setNote('');
+     
+        // console.log(data2);
+     //   taskDetails.type = "Approved";
+   //     const fullInfo = taskDetails;
+       
+ //       delete fullInfo.imageUri;
+       // socket.emit("ApproveTask", fullInfo);
+      } else {
+        alert("Server Error Please try again later");
+      }
+  }
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -47,10 +82,10 @@ export const RequestMoney = ({ navigation }) => {
         />
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
           <Feather name="phone" size={24} color="#4285F4" />
-          <Text style={{ marginLeft: 16, fontSize: 16 }}>Phone Number</Text>
+          <Text style={{ marginLeft: 16, fontSize: 16 }}>To</Text>
         </View>
         <TextInput
-          placeholder="Enter phone number"
+          placeholder="Enter PHONE / UPI ID"
           keyboardType="phone-pad"
           value={phone}
           onChangeText={setPhone}
@@ -66,8 +101,24 @@ export const RequestMoney = ({ navigation }) => {
           onChangeText={setNote}
           style={{ backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, fontSize: 18, marginTop: 8 }}
         />
-        <TouchableOpacity onPress={handlePay} style={{ backgroundColor: '#4285F4', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center', marginTop: 32 }}>
+        <TouchableOpacity onPress={studentPay} style={{ backgroundColor: '#4285F4', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center', marginTop: 32 }}>
+        {isLoading ? (
+          <ActivityIndicator /> // Show the loading indicator
+        ) : (
           <Animated.Text style={{ color: '#fff', fontSize: 18, transform: [{ scale: animation }] }}>Pay</Animated.Text>
+          
+        )}
+        
+        
+        
+        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+      
+        <Text style={{ marginLeft: 16, fontSize: 16 }}>Or</Text>
+      </View>
+
+        <TouchableOpacity onPress={handleScan} style={{ backgroundColor: '#4285F4', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center', marginTop: 32 }}>
+          <Animated.Text style={{ color: '#fff', fontSize: 18, transform: [{ scale: animation }] }}>Scan Qr Code</Animated.Text>
         </TouchableOpacity>
       </View>
     </View>

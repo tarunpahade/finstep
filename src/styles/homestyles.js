@@ -13,16 +13,15 @@ export const homestyles = StyleSheet.create({
     ProfileImage: {
       width: 35,
       height: 35,
-      borderRadius: 40,
+      borderRadius: 0,
     },
     ProfileImageNotification: {
-      height: "19%",
-      width: "25%",
-      backgroundColor: "#4853ef",
-      borderRadius: 6,
+      height: "23%",
+      width: "55%",
+      borderRadius: 15,
       position: "absolute",
-      right: 6,
-      borderWidth: 2,
+      right: -8,
+      borderWidth: 0,
       borderColor: "#000",
     },
     imgContainer: {
@@ -31,21 +30,23 @@ export const homestyles = StyleSheet.create({
       alignItems: "center",
     },
     Heading: {
-      fontSize: 20,
+      marginTop: 10,
+      fontSize: 18,
       color: COLORS.black,
-      fontWeight: "bold",
+     fontWeight:'600'
     },
-    SubHeading: { fontSize: 17, color: COLORS.black, opacity: 0.6 },
+    SubHeading: { fontSize: 12, color: COLORS.black, opacity: 0.6 },
     image: {
-      flex: 1,
       width: "99%",
       height: 210,
       marginVertical: 20,
       resizeMode: "contain",
     },
     notificationNav: {
+    marginTop:'10%',
+
       flexDirection: "row",
-      width: "55%",
+      width: "48.9%",
       justifyContent: "space-between",
       alignItems: "center",
       margin: 20,
@@ -53,7 +54,7 @@ export const homestyles = StyleSheet.create({
     bgText: {
       fontSize: 19,
       fontWeight: "bold",
-      paddingLeft: 2,
+      paddingLeft: 0,
     },
   });
   

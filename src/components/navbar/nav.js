@@ -8,17 +8,29 @@ import {
    
   } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons'; 
+import { useNavigation } from '@react-navigation/native';
 
 export const Navbar = (props) => {
+
+  const navigation=useNavigation()
   return (
     <View style={styles.navbar}>
     <Image style={styles.navbtn}  source={require('../../assets/images/finstep.jpg')}/>
-   
+    
   <View style={styles.navContainer}>
-  <TouchableOpacity onPress={props.notificationClick}>
-  <MaterialIcons name='notifications' size={30} color="#312651" />
+  
+  <TouchableOpacity onPress={props.helpClick}>
+  <MaterialIcons name='help-outline' size={28} color="#312651" />
   </TouchableOpacity>
-    <Image style={styles.profile} source={require('../../assets/images/kemal.jpg')}/>
+  <TouchableOpacity onPress={props.notification}>
+  
+  <MaterialIcons name='notifications' size={28} color="#312651" />
+  </TouchableOpacity>
+  <TouchableOpacity onPress={()=>{navigation.navigate('Profile',{data:props.profile})}}> 
+  <Image source={require('../../assets/icons/parents.png')} style={styles.profile} />
+
+  
+  </TouchableOpacity>
     </View>
   </View>
   )
@@ -47,6 +59,6 @@ const styles = StyleSheet.create({
       navContainer:{
         justifyContent:'space-between',
         flexDirection:'row',
-        width:80
+        width:'40%'
       }
 })

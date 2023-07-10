@@ -4,7 +4,8 @@ const styles = StyleSheet.create({
     ProfileImage: {
       width: 55,
       height: 55,
-      borderRadius: 40
+      borderRadius: 40,
+    
     },
     ProfileImageNotification: {
       height: 12,
@@ -54,7 +55,9 @@ const styles = StyleSheet.create({
     PanelImage: {
       width: 40,
       height: 40,
-      backgroundColor: '#000',
+      borderWidth:1,
+      borderColor:'rgba(0,96,255,0.2)',
+      backgroundColor: '#eee',
       borderRadius: 40
     },
     PanelButton: {
@@ -91,18 +94,19 @@ export const Flatlistitem = (props) => {
               </View>
       {/* this ia the text container */}
               <View>
-                <Text style={{fontSize: 19, color: '#000'}}>{item.userName}</Text>
-                <Text style={{fontSize: 14, color: '#000', opacity: 0.6}}>{item.transactionDate}</Text>
+                <Text style={{fontSize: 17, color: '#000'}}>{item.userName}</Text>
+                <Text style={{fontSize: 13, color: '#000', opacity: 0.6}}>{item.transactionDate}</Text>
               </View>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Text style={{fontSize: 18, color: '#000', marginHorizontal: 2}}>{item.amount}</Text>
-
+              <Text style={{fontSize: 13, color: '#000', marginHorizontal: 2}}>{item.amount}</Text>
               {item.credit ? (
-                <MaterialIcons name='arrow-drop-up' size={22} color='green' />
+                <MaterialIcons name='arrow-drop-up' size={20} color='green' />
+
               ) : (
                 <MaterialIcons name='arrow-drop-down' size={22} color='#ff3838' />
               )}
+                     
             </View>
         </View>
       

@@ -7,291 +7,524 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
+  Alert,
+  Animated,
+  Dimensions,
   Image,
 } from "react-native";
-import { useApproveTaskMutation, useGetTasksQuery } from "../../store/apiSlice";
-import { Alltask } from "../../store/taskSlice";
+import {
+  useApproveTaskMutation,
+  useGetTasksQuery,
+  useSendMoneyMutation,
+  useRedoTaskMutation
+} from "../../store/apiSlice";
 import { blackstyles } from "../../styles/blackstyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native";
-import { taskSlice } from "../../store/taskSlice";
-import { useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
+import { COLORS } from "../../constants";
+import { Profile } from "../../components/renderProfile/profile";
+
 export function ParentTask(props) {
-  const navigation=useNavigation()
-const dispatch=useDispatch()
-  const [bgcolor, setbgColor] = useState("#000");
-  const [color, setColor] = useState("#fff");
-
-  const [bgcolor2, setbgColor2] = useState("#fff");
-  const [color2, setColor2] = useState("#000");
-
-  const [bgcolor3, setbgColor3] = useState("#fff");
-  const [color3, setColor3] = useState("#000");
-
-  const [showPending, setPending] = useState(true);
-  const [showCompleted, setCompleted] = useState(false);
-  const [showApproved, setApproved] = useState(false);
+  
+  const studentId = useSelector((state) => state.account.account.userId);
+  const [isAddTaskVisible, setisAddTaskVisible] = useState(true)
+  const kids = useSelector((state) => state.parentAccount.account.children);
  
-//const studentId = useSelector((state) => state.auth.user.id);
-const studentId = 6314434; 
-  const { data, isLoading, error } = useGetTasksQuery(studentId);
+  const [showPendingTasks, setShowPendingTasks] = useState(true);
+  const [showInReviewTasks, setShowInReviewTasks] = useState(false);
+const [bottomBorder, setbottomBorder] = useState(COLORS.blue)
+const [textColor, settextColor] = useState('#000')
+const [opacityVal, setopacityVal] = useState(1)
+
+
+const [bottomBorder2, setbottomBorder2] = useState(COLORS.lightGreen)
+const [textColor2, settextColor2] = useState('#333')
+const [opacityVal2, setopacityVal2] = useState(0.6)
+
+  const [sendMoney, { data:sendMoneyData, error:sendMoneyError, isLoading:sendMoneyLoading }] = useSendMoneyMutation();
+  const [redoTaskId, { data:redoData, error:redoError, isLoading:redoLoading }] = useRedoTaskMutation();
+
+  const [showStudentDetails, setshowStudentDetails] = useState(false)
+  const userIds = [];
+
+  for (const kid of kids) {
+  userIds.push(kid.userId);
+  }
+  const { data, isLoading, error, refetch } = useGetTasksQuery(studentId);
+  const tasks = [];
+  userIds.map(async (userId) => {
+    const { data, isLoading, error } =  useGetTasksQuery(userId);
+  
+    if (isLoading) {
+      return <ActivityIndicator />;
+    }
+      if (error) {
+      console.log(error);
+    }
+    tasks.push({tasks:data.data,userId:userId})
+
+  })
+
+  const navigation = useNavigation();
+
+  const childName = useSelector((state) => state.account.account.name);
+  const parentId = useSelector((state) => state.parentAccount.account.userId);
+ 
+  const [showPopup, setShowPopup] = useState(false);
+
+  const [opacity] = useState(new Animated.Value(0));
+
+  const [datafromComponent, setData] = useState([]);
+  const socket = io("https://backend-5ig7.onrender.com/");
+
+
+  useEffect(() => {
+    socket.on("TaskSentForApproval", (Task) => {
+      console.log(Task, studentId, "iiioooooi");
+      if (Task.studentId === studentId) {
+        console.log("Id is matching");
+        refetch();
+      }
+    });
+    return () => {
+      socket.off("TaskSentForApproval");
+    };
+  }, []);
+
   if (isLoading) {
     return <ActivityIndicator />;
   }
+  
+  if (sendMoneyError) {
+    console.log('error wHILE SENDING MONEY');
+  }
+  
   if (error) {
-    return <Text>Error{error.error}</Text>;
+    console.log(error);
   }
- 
+  const Task = data.data;
+  const [pendingData, setpendingData] = useState(Task.filter((item) => item.status === "pending"))
+  
+  
 
 
-  const Task = data.data
+const toggleProfileChange = (dataOntoggle) => {
 
-  const tata=new Array (Task)
-
-  const Task2 = tata.flat();
-
-  if(props.route.params){
-console.log('start');
-
-    const task=props.route.params.task
-Task2.push(task)
-
- }
+const kidTasks = tasks.find(item => item.userId === dataOntoggle)?.tasks || [];
 
 
- 
-  let pendingData = Task2.filter((item) => item.status === "pending");
-  let completedData = Task2.filter((item) => item.status === "completed");
-  let approvedData = Task2.filter((item) => item.status === "approved");
-  if (approvedData.length === 0) {
-    approvedData = [{ name: "No Approved Tasks Yet", amount: "" }];
+const pending=kidTasks
+
+  setpendingData(pending);
+
+  
   }
-  if (pendingData.length === 0) {
+
+const togglePopup = (data) => {
+console.log(data);
+    setData(data);
+    setisAddTaskVisible(false)
+    setShowPopup(true);
+
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+      },
+    });
+  };
+
+  const hidePopup = () => {
+    setisAddTaskVisible(true)
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {});
+    setShowPopup(false);
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: "#fff",
+      },
+    });
+  };
+  const redoTask=async(id)=>{
+console.log(id);
+const result=await redoTaskId({id:id})
+console.log(result);
+if (result.data.status === "Ok") {
+alert('Marked as undone')
+}
+  }
+  async function sendMoneyToDatabase(taskDetails) {
+    const taskapproval = await sendMoney(taskDetails);
+    
+    if (taskapproval.data.status === "Ok") {
+      taskDetails.type = "Approved";
+      const fullInfo = taskDetails;
+
+      delete fullInfo.imageUri;
+    alert("Money Sent Successfully");  
+      socket.emit("ApproveTask", fullInfo);
+    } else if (taskapproval.data.status === "Zero Balance") {
+      console.log("err");
+      Alert.alert(
+        "Add money to your account",
+        "There is no balance in your account .",
+        [
+          {
+            text: "Add Money",
+            onPress: () => navigation.navigate("Add account"),
+          },
+        ]
+      );
+    } else {
+      alert("Server Error Please try again later");
+    }
+  }
+  return (
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
    
-    pendingData = [{ name: "No Pending Tasks Yet", amount: "" }];
-  }
-  if (completedData.length === 0) {
-    completedData = [{ name: "No Completed Tasks Yet", amount: "" }];
-  }
+    <View>
+        <View
+          style={{
+            justifyContent: "flex-start",
+          }}
+        >
+         <Profile kids={kids} ProfikleChange={toggleProfileChange} />
 
-  const onButtonPress = () => {
-    setApproved(false);
-    setPending(true);
-    setCompleted(false);
+           <Pressable style={[{marginLeft:'15%',marginTop:'5%',marginBottom:0}]}>
+          </Pressable>
+        </View>
+        <View style={styles.body}>
+       
+        <TouchableOpacity
+        >
+          <Text style={[styles.bodyTxt]}>Tasks</Text>
+        </TouchableOpacity>
+      </View>
 
-    setbgColor("#000");
-    setColor("#fff");
+        <View style={{ marginBottom: 120 }}>
+        {showPendingTasks && pendingData.length > 0 ? (
+          <FlatList
+          data={pendingData}
+          numColumns={1}
+          renderItem={(item) => <Item data={item} popup={togglePopup} />}
+        />
+         
+          
+        ) : (
+          <View style={{ flex: 1, justifyContent: "center" }}>
+            <Text style={{ textAlign: "center" }}>No Pending Tasks Yet</Text>
+          </View>    
+          )  }
+       
+        </View>
 
-    setbgColor2("#fff");
-    setColor2("#000");
+        {showPopup && <View style={styles.overlay} />}
 
-    setbgColor3("#fff");
-    setColor3("#000");
-  };
-  const onButtonPress2 = () => {
-    setApproved(false);
-    setPending(false);
-    setCompleted(true);
+        {showPopup && (
+          <Animated.View style={[styles.popupContainer, { opacity }]}>
+            <TouchableOpacity onPress={hidePopup} style={styles.crossButton}>
+              <Text style={{ fontSize: 19, color: "white" }}>X</Text>
+            </TouchableOpacity>
 
-    //to change colors
-    setbgColor2("#000");
-    setColor2("#fff");
+            <View>
+              <View style={[styles.popupContent,{paddingTop:'10%'}]}>
+                <View style={styles.popupHeader}>
+                  <View>
+                    <Text style={styles.popupBoldText}>My Tasks</Text>
+                  </View>
+                  <View>
+                    <Text>{datafromComponent.amount}</Text>
+                  </View>
+                </View>
+                <View style={styles.cardContainer}>
+                  <View
+                    style={[
+                      blackstyles.PanelItemContainer,
+                      { width: "73%", marginTop: 30 },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "baseline",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <View
+                        style={{
+                          padding: 6,
+                          flexDirection: "row",
+                          alignItems: "stretch",
+                          justifyContent: "space-evenly",
+                          width: "100%",
+                          paddingHorizontal: 10,
+                        }}
+                      >
+                        <Image
+                          source={require("../../assets/icons/bill.png")}
+                          resizeMode="contain"
+                          style={[styles.btnImage, { tintColor: COLORS.blue }]}
+                        />
+                        <Text style={styles.popupBoldText}>
+                          {datafromComponent.name}
+                        </Text>
+                      </View>
+                      {datafromComponent.status === "completed" ? (
+                        <Text
+                        style={{
+                          fontSize: 9,
+                          color: "#000",
+                          top: 3,
+                          opacity: 0.6,
+                          position: "relative",
+                          right: 80,
+                          backgroundColor: "lightgreen",
+                          padding: 8,
+                          paddingHorizontal:10,
+                          borderRadius: 5,
+                        }}
+                      >
+                      {datafromComponent.status}
 
-    setbgColor("#fff");
-    setColor("#000");
+                      </Text>
+                      ) : (
+                        <Text
+                        style={{
+                          fontSize: 9,
+                          color: "#fff",
+                          top: 3,
+                          opacity: 0.6,
+                          position: "relative",
+                          right: 80,
+                          backgroundColor: "red",
+                          padding: 3,
+                          borderRadius: 5,
+                        }}
+                      >
+                        {datafromComponent.status}
+                      </Text>
+                      )}
+                      
+                    </View>
+                  </View>
 
-    setbgColor3("#fff");
-    setColor3("#000");
-  };
-  const onButtonPress3 = () => {
-    setApproved(true);
-    setPending(false);
-    setCompleted(false);
+                  {datafromComponent.status === "completed" ? (
+                    <View
+                    >
+                      <View>
+                      <TouchableOpacity
+                        style={styles.btn2}
+                        onPress={() => {
+                          const data = {
+                            ...datafromComponent, 
+                            imageUri: "this is a scam image",
+                            parentId: parentId, 
+                            childName: childName,
+                          };
+  
+                         sendMoneyToDatabase(data)
+                        }}
+                      >
+                      {sendMoneyLoading ? (
+                        <ActivityIndicator /> // Show the loading indicator
+                      ) : (
+                        <Text style={{ fontSize: 12 }}>
+                        Reward {datafromComponent.amount}
+                        </Text>
+                      
+                      )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.btn2,{backgroundColor:'#fff',borderWidth:0}]}
+                 onPress={()=>{
+                  redoTask(datafromComponent._id)
+                 }}
+                        >
+                        <Text style={{ fontSize: 12 }}>
+                        Mark as incomplete                   
+                             </Text>
+                      </TouchableOpacity>
+                      </View>
+  
+                      </View>
 
-    setbgColor3("#000");
-    setColor3("#fff");
+                    ) : (
+                      <View>
+                      <TouchableOpacity
+                        style={styles.btn2}
+                        onPress={() => {
+                          const data = {
+                            ...datafromComponent, // Spread the existing properties
+                            imageUri: "this is a scam image", // Add new property 'imageUri'
+                            parentId: parentId, // Add new property 'parentId'
+                            childName: childName, // Add new property 'childName'
+                          };
+               
+                         sendMoneyToDatabase(data)
+                        }}
+                      >
+                      {sendMoneyLoading ? (
+                        <ActivityIndicator /> // Show the loading indicator
+                      ) : (
+                        <Text style={{ fontSize: 12 }}>
+                        Completed ? Reward {datafromComponent.amount}
+                        </Text>
+                                         
+                      )} 
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.btn2,{backgroundColor:'#fff',borderWidth:0}]}
+                       >
+                    
+                      </TouchableOpacity>
+                    </View>
+  
+                    )}
 
-    setbgColor2("#fff");
-    setColor2("#000");
+                </View>
+              </View>
+            </View>
+          </Animated.View>
+        )}
+      </View>
 
-    setbgColor("#fff");
-    setColor("#000");
+     {isAddTaskVisible ? <View style={styles.addTaskButton}>
+     <TouchableOpacity style={styles.button} onPress={() => {
+       navigation.navigate("Add Task");
+     }}>
+       <MaterialIcons name="add" size={24} color="#000" />
+     </TouchableOpacity>
+   </View> : null
+
+     } 
+    </View>
+        
+  
+  );
+}
+function Item(props) {
+
+  const sendDataToParent = () => {
+    props.popup(props.data.item);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={{height:110}}>
+      <TouchableOpacity onPress={sendDataToParent}>
+      
       <View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
-            margin: "2%",
-          }}
-        >
-          <Pressable
-            style={[styles.topContainer, { backgroundColor: bgcolor }]}
-            onPress={onButtonPress}
-          >
-            <Text style={{ color: color }}>Pending</Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.topContainer, { backgroundColor: bgcolor2 }]}
-            onPress={onButtonPress2}
-          >
-            <Text style={{ color: color2 }}>Completed</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.topContainer, { backgroundColor: bgcolor3 }]}
-            onPress={onButtonPress3}
-          >
-            <Text style={{ color: color3 }}>Approved</Text>
-            </Pressable>
-         
-
-            </View>
-            <ScrollView>
-        <View style={{marginBottom:120}}>
+       
         
-          {showPending && (
-            <FlatList
-              data={pendingData}
-              numColumns={1}
-              renderItem={(item) => <Item data={item} />}
-            />
-          )}
-          {showCompleted && (
-            <FlatList
-              data={completedData}
-              numColumns={1}
-              renderItem={(item) => <Item data={item} />}
-            />
-          )}
-          {showApproved && (
-            <FlatList
-              data={approvedData}
-              numColumns={1}
-              renderItem={(item) => <Item data={item} />}
-            />
-          )}
-        </View>
-        </ScrollView>
-        </View>
+     
+          <View style={[styles.popupContent,{height:110}]}>
+          <View style={styles.cardContainer}>
+            <View
+              style={[
+                blackstyles.PanelItemContainer,
+                { width: "73%", marginTop: 30 },
+              ]}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "baseline",
+                  flexDirection: "row",
+                }}
+              >
+                <View
+                  style={{
+                    padding: 6,
+                    flexDirection: "row",
+                    alignItems: "stretch",
+                    justifyContent: "space-evenly",
+                    //   backgroundColor:'#333',
+                    width: "100%",
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Image
+                    source={require("../../assets/icons/bill.png")}
+                    resizeMode="contain"
+                    style={[styles.btnImage, { tintColor: COLORS.blue }]}
+                  />
+                  <Text style={styles.popupBoldText}>
+                  {props.data.item.name}
+                  </Text>
+                </View>
+
+                {props.data.item.status === "completed" ? (
+                  <Text
+                  style={{
+                    fontSize: 9,
+                    color: "#000",
+                    top: 3,
+                    opacity: 0.6,
+                    position: "relative",
+                    right: 80,
+                    backgroundColor: "lightgreen",
+                    padding: 2,
+                    paddingHorizontal:7,
+                    borderRadius: 5,
+                  }}
+                >
+                {props.data.item.status}
+
+                </Text>
+                ) : (
+                  <Text
+                  style={{
+                    fontSize: 9,
+                    color: "#fff",
+                    top: 3,
+                    opacity: 0.6,
+                    position: "relative",
+                    right: 80,
+                    backgroundColor: "red",
+                    padding: 2,
+                    paddingHorizontal:7,
+                    borderRadius: 5,
+                  }}
+                >
+                  {props.data.item.status}
+                </Text>
+                )}
+              </View>
+            </View>
+  <View>
+            </View>
+          </View>
+          </View>
+
+     
+
+        
+            </View>
       
-      
-      <TouchableOpacity style={{bottom:10,position:"absolute",width:'100%'}} onPress={()=>{navigation.navigate('Add Task')}}>
-      <View style={styles.btn2}>
-      <Text style={{color:'#fff'}}>Add Task</Text>
-      </View>
       </TouchableOpacity>
     </View>
   );
 }
-function Item(props) {
-  const [showImage, setShowImage] = useState(false);
-  const navigation = useNavigation();
-  const [approveTask, { data2, error2, isLoading2 }] = useApproveTaskMutation();
-  async function  approvetask(data){
-    console.log(data);
-    await approveTask({id:data})
- console.log('sent');
- 
-  
- }
-  return (
-    <View>
-      <View style={blackstyles.PanelItemContainer}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* this ia the text container */}
-          <View>
-            <Text style={{ fontSize: 19, color: "#000" }}>
-              {props.data.item.name}
-            </Text>
-            <Text style={{ fontSize: 14, color: "#000", opacity: 0.6 }}>
-              {props.data.item.amount}
-            </Text>
-          </View>
-        </View>
-        <View style={{ marginRight: 10 }}></View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "stretch",
-            justifyContent: "space-between",
-          }}
-        >
-          {props.data.item.imageUri && (
-            <View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "stretch",
-                  justifyContent: "space-between",
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate("ImageViewer", {
-                      image: props.data.item.imageUri,
-                    });
-                  }}
-                  style={[styles.miniIcon, { marginHorizontal: 10 }]}
-                >
-                  <MaterialIcons
-                    name="remove-red-eye"
-                    styles={{ padding: 15 }}
-                    size={23}
-                    color="#fff"
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.miniIcon, { marginHorizontal: 10 }]}
-                  onPress={() => {
-                    approvetask(props.data.item._id)
-                  }}
-                >
-                  <MaterialIcons
-                    name="done"
-                    styles={{ padding: 15 }}
-                    size={23}
-                    color="#fff"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-          {props.data.item.status === "pending" && (
-            <TouchableOpacity
-              onPress={() => {
-                alert("reminder sent");
-              }}
-              style={[
-                styles.miniIcon,
-                { marginHorizontal: 10, borderRadius: 0 },
-              ]}
-            >
-              <Text style={{ color: "#fff" }}>Send Reminder</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    </View>
-  );
-}
+const { height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  topContainer: {
-    padding: 10,
-    borderWidth: 1,
-    borderRadius: 17,
-  },
-  notificationNav: {
-    flexDirection: "row",
-    width: "92%",
-    margin: 20,
-    alignItems: "center",
-    justifyContent: "center",
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
 
   miniIcon: {
@@ -302,23 +535,115 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fff",
   },
-  btn2:{
-    padding:10,
-    margin:15,
-    alignItems:'center',
-    color:'#fff',
-    backgroundColor:'#000'
-  },
 
   camera: {
     height: 400,
-
     bottom: 100,
   },
   text: {
     color: "#000",
-
     fontWeight: "bold",
     textAlign: "center",
+  },
+  addTaskButton: {
+    position: 'absolute',
+    bottom: 18,
+    right: 18,
+  },
+  
+button: {
+  backgroundColor: COLORS.secondarygreen,
+  borderColor: COLORS.secondarygreen,
+color:'#000',
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  alignItems: 'center',
+  justifyContent: 'center',
+  elevation: 4,
+},
+  popupContainer: {
+    position: "absolute",
+    bottom: 0,
+height:'45%',
+width:'100%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  
+    opacity: 1,
+  },
+  crossButton: {
+    position: "absolute",
+    top: -50,
+    right: 10,
+    padding: 5,
+    paddingHorizontal: 8,
+    backgroundColor: "black",
+    color: "white",
+    borderRadius: 10,
+  },
+  popupContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "5%",
+    paddingTop:0,
+    paddingBottom: 0,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    opacity: 1,
+    backgroundColor: "#fff",
+
+  },
+  popupHeader: {
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginTop:'5%',
+    justifyContent: "space-between",
+  },
+  btnImage: {
+    height: "45%",
+    width: "35%",
+    paddingBottom: 30,
+  },
+  popupBoldText: { fontSize: 14, color: "#000", fontWeight: "700" },
+  btn2: {
+    padding: 7,
+    paddingHorizontal: 7,
+    marginVertical: 10,
+    width: "100%",
+    alignItems: "center",
+    marginLeft: 0,
+    borderColor: COLORS.secondarygreen,
+    borderWidth: 3,
+    backgroundColor: COLORS.secondarygreen,
+    borderRadius: 5,
+  },
+  btn3: {
+    padding: 7,
+    paddingHorizontal: 5,
+    marginVertical: 10,
+    width: "15%",
+    alignItems: "center",
+    marginLeft: 5,
+    backgroundColor: COLORS.secondarygreen,
+    borderRadius: 5,
+  },
+  body: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+    width: "90%",
+    marginHorizontal: "5%",
+    borderBottomWidth: 0,
+    backgroundColor: COLORS.lightGreen,
+    borderRadius: 20,
+  },
+  bodyTxt: {
+    paddingBottom: 16,
+    borderBottomColor: COLORS.blue,
+    borderBottomWidth: 2,
   },
 });

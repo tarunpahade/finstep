@@ -23,7 +23,7 @@ export const Buttons = (props) => {
       keyExtractor={item => `${item.id}`}
       renderItem={renderItem}
       numColumns={3} // Set the number of columns to 3
-      style={{ marginTop: SIZES.padding * 2 }}
+      style={{ marginTop: SIZES.padding-34 }}
   />
       </View>
   
@@ -45,19 +45,19 @@ alignItems:'center',
     justifyContent: "center",
   },
 btnImage:{
-  height: '60%',
+  height: '45%',
   width: '35%',
   paddingBottom:30
 },
 
 
-btnTxt:  { textAlign: 'center', flexWrap: 'wrap', ...FONTS.body4,paddingTop:5, }
+btnTxt:  { textAlign: 'center', flexWrap: 'wrap', ...FONTS.body5,paddingTop:5, }
 ,btn:{
   height: 90,
 width: 85,
 marginBottom: 0,
 borderRadius: 20,
-
+padding:5,
 alignItems: 'center',
 justifyContent: 'center'
 }
@@ -70,9 +70,7 @@ function renderItem  ({ item }){
 return (
 <TouchableOpacity
   style={{ marginBottom: SIZES.padding * 2,  alignItems: 'center' }}
-
-      onPress={item.onpress}
-  >
+      onPress={item.onpress}>
      
 
       <View

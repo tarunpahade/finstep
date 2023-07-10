@@ -18,227 +18,109 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../../constants";
-import { VictoryPie } from "victory-native";
-import { useGetTransactionQuery } from "../../store/apiSlice";
+import { VictoryLabel, VictoryPie } from "victory-native";
+import { useGetAnalyticsQuery, useGetTransactionQuery } from "../../store/apiSlice";
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
+import { Pie } from "react-chartjs-2";
 
 export function Analytics() {
   const [exp, setExp] = useState(false);
+  const [savings, setSavings] = useState(false);
+
   const [income, setIncome] = useState(false);
   const [hidePie, setPie] = useState(true);
   const [expIncome, setExpIncome] = useState(false);
-  const [graphicData, setGraphicData] = useState(defaultGraphicData);
+  const studentId=useSelector((state) => state.account.account.userId) 
+  console.log(studentId,'this is student id');
+  
+  
+  const { data, isLoading, error } = useGetAnalyticsQuery(studentId);
+
+  const socket = io("https://backend-5ig7.onrender.com/");
+
   useEffect(() => {
-    setGraphicData(wantedGraphicData); // Setting the data that we want to display
+    
+
+    socket.on('ApproveTask', (approveTask) => {
+if(JSON.parse(approveTask.studentId)===current){
+      refetch()
+
+    }
+    });
+    return () => {
+      socket.off('ApproveTask');
+    };
   }, []);
-  //const studentId = useSelector((state) => state.auth.user.id);
-  const studentId = 6314434;
-  const { data, isLoading, error } = useGetTransactionQuery(studentId);
-  if (isLoading) {
-    return <ActivityIndicator />;
+
+    if (isLoading) {
+    return  <ActivityIndicator size={'large'} style={{flex:1}} />
   }
   if (error) {
     return <Text>Error{error.error}</Text>;
   }
-  const wantedGraphicData = [
-    { x: "Expenses", y: 95 },
-    { x: "Income", y: 90 },
-  ];
-
-  const defaultGraphicData = [
-    { x: "Liquid", y: 95 },
-    { x: "Iced", y: 90 },
-  ];
- 
-  // const Expense = [
-  //   {
-  //     key: "1",
-  //     userName: "Food",
-  //     iconName: "fastfood",
-  //     amount: "$350",
-  //   },
-  //   {
-  //     key: "2",
-  //     userName: "Shopping",
-  //     transactionDate: "16 April 20",
-  //     amount: "$150",
-  //     iconName: "shopping-bag",
-
-  //     credit: false,
-  //   },
-  //   {
-  //     key: "3",
-  //     iconName: "movie",
-  //     userName: "Movie",
-  //     transactionDate: "05 April 20",
-  //     amount: "$364",
-  //     credit: false,
-  //   },
-  //   {
-  //     key: "4",
-  //     iconName: "cleaning-services",
-  //     userName: "Fixing",
-  //     transactionDate: "28 March 20",
-  //     amount: "$100",
-  //     credit: true,
-  //   },
-  //   {
-  //     key: "5",
-  //     iconName: "",
-  //     userName: "Food",
-  //     transactionDate: "14 March 20",
-  //     amount: "$450",
-  //     credit: true,
-  //   },
-  //   {
-  //     key: "6",
-  //     iconName: "",
-  //     userName: "Food",
-  //     transactionDate: "05 March 20",
-  //     amount: "$288",
-  //     credit: true,
-  //   },
-  //   {
-  //     key: "7",
-  //     iconName: "",
-  //     userName: "Food",
-  //     transactionDate: "03 March 20",
-  //     amount: "$350",
-  //     credit: false,
-  //   },
-  //   {
-  //     key: "8",
-  //     iconName: "",
-  //     userName: "Food",
-  //     transactionDate: "01 March 20",
-  //     amount: "$350",
-  //     credit: true,
-  //   },
-  // ];
-  // //const Income = [
-  //   {
-  //     key: "1",
-  //     userName: "Dad",
-  //     iconName: "family-restroom",
-  //     amount: "$250",
-  //     credit: true,
-  //   }, //   movie
-  //   {
-  //     key: "2",
-  //     userName: "Monthly Allowance",
-  //     transactionDate: "16 April 20",
-  //     amount: "150",
-  //     iconName: "attach-money",
-
-  //     credit: true,
-  //   },
-  //   {
-  //     key: "3",
-  //     iconName: "money",
-  //     userName: "Relatives",
-  //     transactionDate: "05 April 20",
-  //     amount: "$364",
-  //     credit: true,
-  //   },
-  //   {
-  //     key: "4",
-  //     iconName: "cleaning-services",
-  //     userName: "Fixing",
-  //     transactionDate: "28 March 20",
-  //     amount: "$100",
-  //     credit: true,
-  //   },
-  // //];
-
-  const transactions = data.data;
-  const Income = transactions.filter((x) => x.credit === true);
-  const Expense = transactions.filter((x) => x.credit === false);
-
-  const IncomeMonth = [];
-  const Incomedate = [];
-
-  const ExpMonth = [];
-  const Expdate = [];
-
-  function getDate(data, pushData) {
-    data.filter((x) => {
-      pushData.push(x.transactionDate.slice(0, 2));
-    });
-    //    console.log(pushData);
-  }
-  function getMonth(data, pushData) {
-    data.filter((x) => {
-      pushData.push(x.transactionDate.slice(3, 8));
-    });
-    //  console.log(pushData);
-  }
-  getDate(Income, Incomedate);
-  getDate(Expense, Expdate);
-
-  getMonth(Income, IncomeMonth);
-  getMonth(Expense, ExpMonth);
-
-function getUnique(Income, comp) {
-  const noteAmountMap = Income.reduce((map, item) => {
-    const { note, amount } = item;
-    map[note] = (map[note] || 0) + parseInt(amount.substring(1)); // Parse and add the amount
-    return map;
-  }, {});
-  
-  const uniqueNotes = Object.keys(noteAmountMap);
-  
-  const mergedObjects = uniqueNotes.map(note => {
-    const matchingObjects = Income.filter(item => item.note === note);
-    const mergedAmount = matchingObjects.reduce((sum, obj) => sum + parseInt(obj.amount.substring(1)), 0);
-    return { note, amount: `${mergedAmount}`, userName: matchingObjects[0].userName };
-  });
-return mergedObjects;
-}
-function getUniqueMonth(Income) {
-  console.log(Income);
-  const noteAmountMap = Income.reduce((map, item) => {
-    const { transactionDate, amount } = item;
-    console.log(transactionDate);
-    map[transactionDate] = (map[transactionDate] || 0) + parseInt(amount.substring(1)); // Parse and add the amount
-    return map;
-  }, {});
-  
-  const uniqueNotes = Object.keys(noteAmountMap);
-  
-  const mergedObjects = uniqueNotes.map(transactionDate => {
-    const matchingObjects = Income.filter(item => item.transactionDate === transactionDate);
-    const mergedAmount = matchingObjects.reduce((sum, obj) => sum + parseInt(obj.amount.substring(1)), 0);
-    return { transactionDate, amount: `${mergedAmount}`, userName: matchingObjects[0].transactionDate };
-  });
-return mergedObjects;
-}
-const uniqMonth=getUniqueMonth(Income)
-console.log(uniqMonth);
-  const mergedObjects=getUnique(Income)
-  const mergedObjects2=getUnique(Expense)
-
-  console.log(mergedObjects);
+const { ExpSum,IncSum,SavingsSum,totalAmt,totalAmt2,totalAmt3,uniquemonth,uniquemonth2,uniquemonth3,mergedObjects,mergedObjects2,mergedObjects3,allMerged }=data.data
 
 
+const wantedGraphicData = [
+
+  { x: `Income ${IncSum-3000}`, y: IncSum-5000},
+
+
+  { x: `Exp:${ExpSum}`, y: ExpSum},
+
+
+  { x: `Savings: ${SavingsSum}`, y: SavingsSum},
+
+
+];
+//for income
   const linedata = {
-    labels: ["Jan", "Feb", "March", "April", "May", "June"],
+    labels: uniquemonth,
     datasets: [
       {
-        data: [90, 45, 28, 80, 90, 43],
+        data: totalAmt,
+        strokeWidth: 5, // optional
+      },
+      // {
+      //   data: totalAmt2,
+      //   strokeWidth: 2, // optional
+      //   stroke: "#FF0000",
+      // },
+    ],
+  };
+  const linedata2 = {
+    labels: uniquemonth2,
+    datasets: [
+      {
+        data: totalAmt2,
         strokeWidth: 2, // optional
       },
     ],
   };
-
+  const linedata3 = {
+    labels: uniquemonth3,
+    datasets: [
+      {
+        data: totalAmt3,
+        strokeWidth: 2, // optional
+      },
+    ],
+  }
   return (
     <View>
       {hidePie ? (
         <View style={{ width: "100%", alignItems: "center" }}>
           <VictoryPie
             animate={{ easing: "exp" }}
-            data={graphicData}
+            data={wantedGraphicData}
             innerRadius={30}
-            width={390}
-            height={220}
+            width={395}
+            height={250}
+            labelRadius={105} 
+            labels={({ datum }) => `${datum.x}`}
+          labelPosition={({ index }) => index ? "centroid" : "start"}
+
             style={{
               data: {
                 fillOpacity: 1,
@@ -246,21 +128,22 @@ console.log(uniqMonth);
                 strokeWidth: 2,
               },
               labels: {
-                fill: "#000",
+                fill: "blue",
+                
               },
             }}
-            colorScale={[COLORS.purple, COLORS.green]}
+            colorScale={[COLORS.purple, COLORS.green,COLORS.yellow]}
           />
         </View>
       ) : null}
       {exp ? (
         <LineChart
-          data={linedata}
+          data={linedata2}
           width={Dimensions.get("window").width} // from react-native
           height={190}
           chartConfig={{
-            backgroundGradientFrom: "#fff",
-            backgroundGradientTo: "#fff",
+            backgroundGradientFrom: "#eee",
+            backgroundGradientTo: "#eee",
             decimalPlaces: 2, // optional, defaults to 2dp
             color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             style: {},
@@ -294,51 +177,151 @@ console.log(uniqMonth);
           }}
         />
       ) : null}
+      {savings ? (
+        <LineChart
+          data={linedata3}
+          width={Dimensions.get("window").width} // from react-native
+          height={190}
+          chartConfig={{
+            backgroundGradientFrom: "#eee",
+            backgroundGradientTo: "#eee",
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            style: {},
+          }}
+          bezier
+          style={{
+            marginVertical: 0,
+            borderRadius: 0,
+          }}
+        />
+      ) : null}
       <View style={styles.body}>
-        <TouchableOpacity
+     
+      <TouchableOpacity
           onPress={() => {
-            setExpIncome(true);
-            setExp(true);
-            setPie(false);
+           setSavings(false);
+            setExp(false);
+            setPie(true);
             setIncome(false);
           }}
         >
-          <Text style={styles.bodyTxt}>Expense</Text>
+          {hidePie ? (
+            <Text style={[styles.bodyTxt]}>Overall</Text>
+
+          ) : (
+            <Text style={[styles.bodyTxt,{borderBottomColor:'#eee'}]}>Overall</Text>
+
+
+          ) }
+        </TouchableOpacity>
+      <TouchableOpacity
+          onPress={() => {
+           
+            setExp(true);
+            setPie(false);
+            setIncome(false);
+          setSavings(false);
+
+          }}
+        >
+        {exp ? (
+          <Text style={[styles.bodyTxt]}>Expense</Text>
+
+        ) : (
+          <Text style={[styles.bodyTxt,{borderBottomColor:'#eee'}]}>Expense</Text>
+
+
+        ) }
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            setExpIncome(false);
+            
             setIncome(true);
             setPie(false);
             setExp(false);
+          setSavings(false);
+
           }}
         >
+        {income ? (
           <Text style={styles.bodyTxt}>Income</Text>
+        ) : (
+          <Text style={[styles.bodyTxt,{borderBottomColor:'#eee'}]}>Income</Text>
+
+
+        ) }
+        
         </TouchableOpacity>
+        <TouchableOpacity
+        onPress={() => {
+          
+          setIncome(false);
+          setPie(false);
+          setExp(false);
+          setSavings(true);
+        }}
+      >
+      {savings ? (
+        <Text style={styles.bodyTxt}>Savings</Text>
+      ) : (
+        <Text style={[styles.bodyTxt,{borderBottomColor:'#eee'}]}>Savings</Text>
+
+
+      ) }
+      
+      </TouchableOpacity>
       </View>
+
       <ScrollView>
-        <View>
-          {expIncome ? (
+        <View >
+          {exp ? (
             <View style={styles.card}>
               <FlatList
                 data={mergedObjects2}
-                keyExtractor={(item) => item.key}
+                keyExtractor={() => Math.random().toString()}
                 renderItem={({ item }) => (
                   <Item data={item} color={styles.PanelRed} />
                 )}
               />
             </View>
-          ) : (
+          ) : null}
+          {income ? (
+            
+              <View style={styles.card}>
+                <FlatList
+                  data={mergedObjects}
+                  keyExtractor={() => Math.random().toString()}
+                  renderItem={({ item }) => (
+                    <Item data={item} color={styles.PanelImage} />
+                  )}
+                />
+              </View>
+          ) : null}
+          {savings ? (
             <View style={styles.card}>
               <FlatList
-                data={mergedObjects}
+                data={mergedObjects3}
+                keyExtractor={() => Math.random().toString()}
+                renderItem={({ item }) => (
+                  <Item data={item} color={styles.PanelImage} />
+                )}
+            />
+            </View>
+          ) : null
+          }
+          {hidePie ? (
+            <View style={styles.card}>
+              <FlatList
+                data={allMerged}
                 keyExtractor={(item) => item.key}
                 renderItem={({ item }) => (
                   <Item data={item} color={styles.PanelImage} />
                 )}
-              />
+            />
             </View>
-          )}
+          ) : null
+          }
         </View>
       </ScrollView>
     </View>
@@ -367,6 +350,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: 10,
+    marginBottom: '100%',
   },
   ProfileImage: {
     width: 55,
@@ -417,6 +401,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+
+
   },
   PanelImage: {
     width: 35,
@@ -436,7 +422,9 @@ const styles = StyleSheet.create({
 
 function Item(props) {
   const item = props.data;
-  const Colorss = props.color;
+  const Colorss = props.color
+
+  const credit=item.credit
   return (
     <View style={styles.PanelItemContainer}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -461,9 +449,10 @@ function Item(props) {
         </Text>
 
         {item.credit ? (
-          <MaterialIcons name="arrow-drop-up" size={22} color="green" />
+          <MaterialIcons name='arrow-drop-up' size={22} color='green' />
+
         ) : (
-          <MaterialIcons name="arrow-drop-down" size={22} color="#ff3838" />
+          <MaterialIcons name='arrow-drop-down' size={22} color='#ff3838' />
         )}
       </View>
     </View>

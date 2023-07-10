@@ -1,13 +1,15 @@
 const {configureStore}= require('@reduxjs/toolkit')
-import { transactionSlice } from './transactionSlice'
 import { appSlice } from './apiSlice'
 import { taskSlice } from './taskSlice'
+import { accountSlice } from './authitication'
+import { parentAccountSlice } from './parentAuth'
 export const store =configureStore({
     
     reducer:{
-transaction:transactionSlice.reducer,
     api:appSlice.reducer,
-    task:taskSlice.reducer
+    studentTask:taskSlice.reducer,
+    account:accountSlice.reducer,
+    parentAccount:parentAccountSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(appSlice.middleware),

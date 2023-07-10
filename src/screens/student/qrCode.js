@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   scanContainer: {
     position: 'absolute',
-    top: (Dimensions.get('window').height - Dimensions.get('window').width * (9 / 16)) / 2, // Adjust the ratio as needed
+    top: (Dimensions.get('window').height - Dimensions.get('window').width * (9 / 16)) / 3, // Adjust the ratio as needed
     left: 0,
     right: 0,
     justifyContent: 'center',

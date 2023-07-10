@@ -12,7 +12,5 @@ export default {
     banner,
     promoBanner,
     focus,
-
-    // Dummy
     usFlag
 }

@@ -53,14 +53,3 @@ const styles = StyleSheet.create({
 });
 
 export default ImageViewer;
-// position: 'absolute',
-// top:100,
-// left: 20,
-// // right: 0,
-// // bottom: 0,
-// width:"80%",
-// height:"40%",
-// transform: [{ rotate: '-90deg' }],
-// backgroundColor: 'black',
-// justifyContent: 'center',
-// alignItems: 'center',
