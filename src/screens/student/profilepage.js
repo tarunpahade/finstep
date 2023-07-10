@@ -26,7 +26,7 @@ console.log('hii');
     // You can make an API call here to save the data on the server
   };
   const Logout = () =>{
-navigation.replace('Pin Page')
+navigation.replace('Register Screen')
   }
 
   return (

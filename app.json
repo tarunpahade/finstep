@@ -4,10 +4,10 @@
     "slug": "finstep2",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/finstep.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/mobile.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
       "plugins": [
@@ -35,7 +35,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/finstep.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.finsteps.finstep",
@@ -46,7 +46,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2ad8fcd6-44ba-4ee7-bfdd-b0672e46ddf4"
+        "projectId": "aaedae10-bd91-48a0-ad30-8df5796d07e2"
       }
     },
     "runtimeVersion": {
