@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal,ScrollView } from "react-native";
 import { styles } from "../../styles/StandardStyles";
+import { useNewAccountMutation } from "../../store/apiSlice";
+import { useNavigation } from "@react-navigation/native";
 
-const UserDetailScreen = () => {
+const UserDetailScreen = ({route}) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,6 +15,11 @@ const UserDetailScreen = () => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [address, setAddress] = useState("");
   const [pincode, setPincode] = useState("");
+const navigation =useNavigation()  
+  const [
+    newAccount,
+    { data, error, isLoading},
+  ] = useNewAccountMutation();
   
 
   const handleGenderSelect = (selectedGender) => {
@@ -24,10 +31,36 @@ console.log(firstName,lastName,email,gender);
     setKycModalVisible(true);
   };
 
-  const handleKycContinue = () => {
+  const AddProfile=async()=>{
+    console.log('Add Profile');
+
+  
+  }
+  const handleKycContinue = async() => {
 console.log(aadharNumber,address,fullName,dateOfBirth,pincode);
     //setKycModalVisible(false);
 console.log('after this navigate to Home');
+
+const profileData={
+  name:fullName,
+  phone_number:parseFloat(route.params.phone_number),
+  address:address,
+  email:email,
+  addhar:aadharNumber,
+  balance:0,
+  parentId:'Individual Account' ,
+  password:1234,
+  date_of_birth:dateOfBirth,
+  userId:Math.floor(Math.random()*6),
+  is_parent:false,
+}
+console.log(profileData,'this is profile data');
+const result=await newAccount(profileData)
+console.log(result,'this is result');
+if (result.data.status==='Ok'){
+ alert('Account Created successfully')
+navigation.navigate('Register Screen')
+}
   };
 
   return (
@@ -133,7 +166,7 @@ console.log('after this navigate to Home');
             />
           </View>
           <TouchableOpacity style={styles.button} onPress={handleKycContinue}>
-            <Text style={styles.buttonText}>Continue</Text>
+            <Text style={styles.buttonText} onPress={AddProfile}>Continue</Text>
           </TouchableOpacity>
         </ScrollView>
       </Modal>

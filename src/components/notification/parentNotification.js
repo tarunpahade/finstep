@@ -6,10 +6,13 @@ import {
   Text,
   View,
   FlatList,
+  Modal,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-export function ParentNotification({tasks,removeTask,addMoney}) {
+import { ScrollView, gestureHandlerRootHOC } from "react-native-gesture-handler";
 
+
+export function ParentNotification({tasks,removeTask,addMoney}) {
+console.log('Hello from parent notification');
   const renderItem = ({ item }) => {
    
     let message = '';
@@ -57,7 +60,7 @@ export function ParentNotification({tasks,removeTask,addMoney}) {
       </TouchableOpacity>
    
     );
-  };
+  }  
   return (
     <ScrollView>
    <View>
@@ -83,9 +86,9 @@ export function ParentNotification({tasks,removeTask,addMoney}) {
    </View>
    </ScrollView>
   );
+
+
 }
-
-
 const styles = StyleSheet.create({
   notificationContainer: {
     marginTop: 32,
@@ -140,4 +143,9 @@ const styles = StyleSheet.create({
   },
 });
 
+export const ParentNotification1=(gestureHandlerRootHOC(({tasks,removeTask,addMoney}) =>
+// <Modal>
+<ParentNotification tasks={tasks} removeTask={removeTask} addMoney={addMoney} />
+// </Modal>
+));
 

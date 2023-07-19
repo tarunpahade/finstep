@@ -1,0 +1,4 @@
+//Whenever there is a error while running server, like This is the file for error 
+Android Bundling failed 3373ms
+Unable to resolve "fbjs/lib/invariant" from "node_modules\fbemitter\lib\BaseEventEmitter.js" use expo update to try and fix those issues.
+```

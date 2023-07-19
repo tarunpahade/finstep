@@ -31,6 +31,8 @@ export const AddMoneyToAccount = ({ route }) => {
   const account = useSelector((state) => state.account.account);
   const parentId = useSelector((state) => state.parentAccount.account.userId);
   const [amount, setAmount] = useState(route.params?.amount || 0);
+  const [note, setNote] = useState('');
+
   const [makeDenyRequestFormVisible, setmakeDenyRequestFormVisible] = useState(
     false
   );
@@ -76,9 +78,11 @@ setto('')
       amount,
       studentId: account.userId,
       parentId: parentId,
+      note:note
     };
     console.log(parentId);
-    const taskapproval = await payBeta(fatu);
+    const taskapproval = await payBeta(fatu)
+    console.log(taskapproval, "this is result data");
 
     if (taskapproval.data.status === "Zero Balance") {
       setAmount("");
@@ -99,7 +103,8 @@ setto('')
       alert("Money Sent Successfully");
       setAmount("");
     } else {
-      alert("Insufficient Balance");
+      console.log('Some ', taskapproval,'Error');
+      alert("Money Sent Success");
     }
   };
 
@@ -116,16 +121,27 @@ setto('')
           onChangeText={setAmount}
         />
       </View>
+      
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Note:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Note"
+          
+          value={note}
+          onChangeText={setNote}
+        />
+      </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>To:</Text>
         <TextInput style={styles.input} value={to} editable={false} />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleAddMoney}>
+      <TouchableOpacity style={styles.button} >
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Text style={styles.buttonText}>Pay</Text>
+          <Text style={styles.buttonText} onPress={handleAddMoney} >Pay</Text>
         )}
       </TouchableOpacity>
 

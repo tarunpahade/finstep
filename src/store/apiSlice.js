@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-const baseUrl = "https://backend-5ig7.onrender.com/";
-//const baseUrl = "http://192.168.1.107:5000/";
+//const baseUrl = "https://backend-5ig7.onrender.com/";
+const baseUrl = "http://192.168.106.253:5000/";
 
 export const appSlice = createApi({
   reducerPath: "api",
@@ -29,6 +29,15 @@ export const appSlice = createApi({
         body: id,
       }),
       invalidatesTags: ["Task"],
+    }),
+    
+    newAccount: builder.mutation({
+      query: (id) => ({
+        url: "/login/new-account",
+        method: "POST",
+        body: id,
+      }),
+      invalidatesTags: ["Login"],
     }),
     getAnalytics: builder.query({
       query: (id) => `transactions/analytics/${id}`,
@@ -135,7 +144,6 @@ export const appSlice = createApi({
         method: "POST",
         body: approveTask,
       }),
-
       invalidatesTags: ["Transaction"],
     }),
 
@@ -208,4 +216,5 @@ export const {
   useAddMoneyToPotMutation,
   useAddMoneyToParentPotMutation,
   useGetSavingTransactionsQuery
+,useNewAccountMutation
 } = appSlice;

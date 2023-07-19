@@ -30,7 +30,7 @@ import {
 import faqData from "../../data/data";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
-import { ParentNotification } from "../../components/notification/parentNotification";
+import { ParentNotification, ParentNotification1 } from "../../components/notification/parentNotification";
 export const ParentHome = ({ navigation }) => {
   const [notificationclick, setnotificationclick] = useState(false);
 
@@ -60,18 +60,25 @@ export const ParentHome = ({ navigation }) => {
   const removeNotificationAndAddMoney = async (task) => {
     const id = { id: task._id };
     const amount = task.amount;
-    const deletyed = await deleteNotification(id);
-    console.log(deletyed);
-    if (deletyed.data.status === "Ok") {
-      navigation.navigate("Add account", {
-        amount: amount,
-        to: task.childName,
-        from: "parent",
-        childId: task.childId,
-        reason: task.note,
-      });
-    }
-  };
+  //   const deletyed = await deleteNotification(id);
+  //   console.log(deletyed);
+  //   if (deletyed.data.status === "Ok") {
+      // navigation.navigate("Add account", {
+      //   amount: amount,
+      //   to: task.childName,
+      //   from: "parent",
+      //   childId: task.childId,
+      //   reason: task.note,
+      // });
+  //   }
+  navigation.navigate("Add account", {
+    amount: amount,
+    to: task.childName,
+    from: "parent",
+    childId: task.childId,
+    reason: task.note,
+  }); 
+};
   // registerForPushNotificationsAsync()
 
   useEffect(() => {
@@ -207,7 +214,23 @@ console.log(data.data);
               </View>
             </View>
           </View>
+          <Modal visible={notificationclick}>
+          <View style={globastyles.notificationNav}>
+          <TouchableOpacity onPress={hidenotification}>
+            <MaterialIcons
+              name="arrow-back-ios"
+              size={24}
+              color="#312651"
+            />
+          </TouchableOpacity>
+          <Text style={globastyles.bgText}>Notification</Text>
+        
 
+          </View>
+          <ParentNotification1 visisbility={notificationclick} tasks={notificationData} removeTask={removeTask} addMoney={removeNotificationAndAddMoney} />
+
+          
+          </Modal>
           <Modal visible={help}>
             <View style={globastyles.notificationNav}>
               <TouchableOpacity
@@ -227,23 +250,6 @@ console.log(data.data);
             <FAQPage data={faqData} />
           </Modal>
 
-          <Modal visible={notificationclick}>
-            <View style={globastyles.notificationNav}>
-              <TouchableOpacity onPress={hidenotification}>
-                <MaterialIcons
-                  name="arrow-back-ios"
-                  size={24}
-                  color="#312651"
-                />
-              </TouchableOpacity>
-              <Text style={globastyles.bgText}>Notification</Text>
-            </View>
-            <ParentNotification
-              tasks={notificationData}
-              removeTask={removeTask}
-              addMoney={removeNotificationAndAddMoney}
-            />
-          </Modal>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -361,3 +367,23 @@ const styles = StyleSheet.create({
     width: "40%",
   },
 });
+
+
+
+// <Modal visible={notificationclick}>
+// <View style={globastyles.notificationNav}>
+//   <TouchableOpacity onPress={hidenotification}>
+//     <MaterialIcons
+//       name="arrow-back-ios"
+//       size={24}
+//       color="#312651"
+//     />
+//   </TouchableOpacity>
+//   <Text style={globastyles.bgText}>Notification</Text>
+// </View>
+// <ParentNotification
+//   tasks={notificationData}
+//   removeTask={removeTask}
+//   addMoney={removeNotificationAndAddMoney}
+// />
+// </Modal>

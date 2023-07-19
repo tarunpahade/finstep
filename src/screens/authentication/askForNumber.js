@@ -38,7 +38,8 @@ const RegisterPhone = ({ navigation }) => {
       if (result.data.data.is_parent === false) {
         setAccount(result.data.data);
         console.log("Is a Kid");
-        navigation.navigate("Pin Page", { accountType: "Student Login" });
+        navigation.navigate('Home')
+      //  navigation.navigate("Pin Page", { accountType: "Student Login" });
       } else if (result.data.data.is_parent === true) {
         setParentAccount(result.data.data);
         console.log("Is a Parent");

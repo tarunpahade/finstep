@@ -97,8 +97,8 @@ if(addNewNotification.error){
       if (addNewNotification.data.status === "Ok") {
         alert("Money added to top");
       setAmount(0);
-      setmakeAddmoneyVisible(false);
-      //navigation.navigate("Task");
+     // setmakeAddmoneyVisible(false);
+      navigation.goBack()
       } 
     
   };

@@ -6,13 +6,12 @@ import {
   Text,
   View,
   FlatList,
-} from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+} from "react-native";;
 
 
 
 export function Notification({tasks,removeTask}) {
-  
+  console.log('here goes notifications');
   const renderItem = ({ item }) => {
     let message = '';
     let iconName = '';
@@ -42,7 +41,7 @@ console.log(item);
         break;
             
         case 'Money Sent By Parent':
-        message = `Parent sent to your account ${item.amount}`;
+        message = `Parent sent to your account ${item.amount} for ${item.note}`;
         iconName = 'check';
         onpress=onNotificationClick;
         break;
@@ -72,7 +71,7 @@ console.log(item);
     );
   };
   return (
-    <ScrollView>
+    <View>
    <View>
    <View style={styles.notificationContainer}>
 
@@ -94,7 +93,7 @@ console.log(item);
 
    </View>
    </View>
-   </ScrollView>
+   </View>
   );
 }
 

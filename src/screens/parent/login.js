@@ -1,10 +1,10 @@
 import React, {  useState,useContext } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View,Alert, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useLoginMutation } from '../../store/apiSlice';
 import { useDispatch } from 'react-redux';
 import { parentAccountSlice } from '../../store/parentAuth';
 import { accountSlice } from '../../store/authitication';
-import { Alert, Button } from 'react-native-web';
+
 import { AuthContext } from '../../context/AuthContext';
 
 const LoginScreen = ({navigation}) => {

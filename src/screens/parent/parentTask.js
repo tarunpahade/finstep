@@ -16,7 +16,7 @@ import {
   useApproveTaskMutation,
   useGetTasksQuery,
   useSendMoneyMutation,
-  useRedoTaskMutation
+  useRedoTaskMutation,
 } from "../../store/apiSlice";
 import { blackstyles } from "../../styles/blackstyles";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -27,107 +27,65 @@ import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { COLORS } from "../../constants";
 import { Profile } from "../../components/renderProfile/profile";
+import { Tasks } from "../student/task";
 
-export function ParentTask(props) {
-  
+export function ParentTask() {
   const studentId = useSelector((state) => state.account.account.userId);
-  const [isAddTaskVisible, setisAddTaskVisible] = useState(true)
-  const kids = useSelector((state) => state.parentAccount.account.children);
- 
+  const [isAddTaskVisible, setisAddTaskVisible] = useState(true);
+  // const kids = useSelector((state) => state.parentAccount.account.children);
   const [showPendingTasks, setShowPendingTasks] = useState(true);
-  const [showInReviewTasks, setShowInReviewTasks] = useState(false);
-const [bottomBorder, setbottomBorder] = useState(COLORS.blue)
-const [textColor, settextColor] = useState('#000')
-const [opacityVal, setopacityVal] = useState(1)
+  const [
+    sendMoney,
+    { data: sendMoneyData, error: sendMoneyError, isLoading: sendMoneyLoading },
+  ] = useSendMoneyMutation();
+  const [
+    redoTaskId,
+    { data: redoData, error: redoError, isLoading: redoLoading },
+  ] = useRedoTaskMutation();
 
-
-const [bottomBorder2, setbottomBorder2] = useState(COLORS.lightGreen)
-const [textColor2, settextColor2] = useState('#333')
-const [opacityVal2, setopacityVal2] = useState(0.6)
-
-  const [sendMoney, { data:sendMoneyData, error:sendMoneyError, isLoading:sendMoneyLoading }] = useSendMoneyMutation();
-  const [redoTaskId, { data:redoData, error:redoError, isLoading:redoLoading }] = useRedoTaskMutation();
-
-  const [showStudentDetails, setshowStudentDetails] = useState(false)
-  const userIds = [];
-
-  for (const kid of kids) {
-  userIds.push(kid.userId);
-  }
+  // const userIds = kids.map((kid) => kid.userId);
   const { data, isLoading, error, refetch } = useGetTasksQuery(studentId);
-  const tasks = [];
-  userIds.map(async (userId) => {
-    const { data, isLoading, error } =  useGetTasksQuery(userId);
-  
-    if (isLoading) {
-      return <ActivityIndicator />;
-    }
-      if (error) {
-      console.log(error);
-    }
-    tasks.push({tasks:data.data,userId:userId})
-
-  })
+  const [tasks, setTasks] = useState([]);
 
   const navigation = useNavigation();
-
   const childName = useSelector((state) => state.account.account.name);
   const parentId = useSelector((state) => state.parentAccount.account.userId);
- 
+
   const [showPopup, setShowPopup] = useState(false);
-
   const [opacity] = useState(new Animated.Value(0));
-
   const [datafromComponent, setData] = useState([]);
   const socket = io("https://backend-5ig7.onrender.com/");
 
-
   useEffect(() => {
     socket.on("TaskSentForApproval", (Task) => {
-      console.log(Task, studentId, "iiioooooi");
+      console.log(Task, studentId, "Sent For approval");
       if (Task.studentId === studentId) {
-        console.log("Id is matching");
         refetch();
       }
     });
     return () => {
       socket.off("TaskSentForApproval");
     };
-  }, []);
+  }, [socket, refetch, studentId]);
 
   if (isLoading) {
     return <ActivityIndicator />;
   }
-  
+
   if (sendMoneyError) {
-    console.log('error wHILE SENDING MONEY');
+    console.log("error WHILE SENDING MONEY");
   }
-  
+
   if (error) {
     console.log(error);
   }
+
   const Task = data.data;
-  const [pendingData, setpendingData] = useState(Task.filter((item) => item.status === "pending"))
-  
-  
-
-
-const toggleProfileChange = (dataOntoggle) => {
-
-const kidTasks = tasks.find(item => item.userId === dataOntoggle)?.tasks || [];
-
-
-const pending=kidTasks
-
-  setpendingData(pending);
-
-  
-  }
-
-const togglePopup = (data) => {
-console.log(data);
+console.log(Task,'task');
+  const togglePopup = (data) => {
+    
     setData(data);
-    setisAddTaskVisible(false)
+    setisAddTaskVisible(false);
     setShowPopup(true);
 
     Animated.timing(opacity, {
@@ -143,7 +101,7 @@ console.log(data);
   };
 
   const hidePopup = () => {
-    setisAddTaskVisible(true)
+    setisAddTaskVisible(true);
     Animated.timing(opacity, {
       toValue: 0,
       duration: 300,
@@ -156,23 +114,23 @@ console.log(data);
       },
     });
   };
-  const redoTask=async(id)=>{
-console.log(id);
-const result=await redoTaskId({id:id})
-console.log(result);
-if (result.data.status === "Ok") {
-alert('Marked as undone')
-}
-  }
+  const redoTask = async (id) => {
+    
+    const result = await redoTaskId({ id: id });
+    
+    if (result.data.status === "Ok") {
+      alert("Marked as undone");
+    }
+  };
   async function sendMoneyToDatabase(taskDetails) {
     const taskapproval = await sendMoney(taskDetails);
-    
+
     if (taskapproval.data.status === "Ok") {
       taskDetails.type = "Approved";
       const fullInfo = taskDetails;
 
       delete fullInfo.imageUri;
-    alert("Money Sent Successfully");  
+      alert("Money Sent Successfully");
       socket.emit("ApproveTask", fullInfo);
     } else if (taskapproval.data.status === "Zero Balance") {
       console.log("err");
@@ -190,43 +148,31 @@ alert('Marked as undone')
       alert("Server Error Please try again later");
     }
   }
+  console.log(datafromComponent, "datafromComponent");
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
-   
-    <View>
+      <View>
         <View
           style={{
             justifyContent: "flex-start",
           }}
         >
-         <Profile kids={kids} ProfikleChange={toggleProfileChange} />
-
-           <Pressable style={[{marginLeft:'15%',marginTop:'5%',marginBottom:0}]}>
-          </Pressable>
+          <Pressable
+            style={[{ marginLeft: "15%", marginTop: "5%", marginBottom: 0 }]}
+          ></Pressable>
         </View>
         <View style={styles.body}>
-       
-        <TouchableOpacity
-        >
-          <Text style={[styles.bodyTxt]}>Tasks</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity>
+            <Text style={[styles.bodyTxt]}>Tasks</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={{ marginBottom: 120 }}>
-        {showPendingTasks && pendingData.length > 0 ? (
           <FlatList
-          data={pendingData}
-          numColumns={1}
-          renderItem={(item) => <Item data={item} popup={togglePopup} />}
-        />
-         
-          
-        ) : (
-          <View style={{ flex: 1, justifyContent: "center" }}>
-            <Text style={{ textAlign: "center" }}>No Pending Tasks Yet</Text>
-          </View>    
-          )  }
-       
+            data={Task}
+            numColumns={1}
+            renderItem={(item) => <Item data={item} popup={togglePopup} />}
+          />
         </View>
 
         {showPopup && <View style={styles.overlay} />}
@@ -238,7 +184,7 @@ alert('Marked as undone')
             </TouchableOpacity>
 
             <View>
-              <View style={[styles.popupContent,{paddingTop:'10%'}]}>
+              <View style={[styles.popupContent, { paddingTop: "10%" }]}>
                 <View style={styles.popupHeader}>
                   <View>
                     <Text style={styles.popupBoldText}>My Tasks</Text>
@@ -282,85 +228,82 @@ alert('Marked as undone')
                       </View>
                       {datafromComponent.status === "completed" ? (
                         <Text
-                        style={{
-                          fontSize: 9,
-                          color: "#000",
-                          top: 3,
-                          opacity: 0.6,
-                          position: "relative",
-                          right: 80,
-                          backgroundColor: "lightgreen",
-                          padding: 8,
-                          paddingHorizontal:10,
-                          borderRadius: 5,
-                        }}
-                      >
-                      {datafromComponent.status}
-
-                      </Text>
+                          style={{
+                            fontSize: 9,
+                            color: "#000",
+                            top: 3,
+                            opacity: 0.6,
+                            position: "relative",
+                            right: 80,
+                            backgroundColor: "lightgreen",
+                            padding: 8,
+                            paddingHorizontal: 10,
+                            borderRadius: 5,
+                          }}
+                        >
+                          {datafromComponent.status}
+                        </Text>
                       ) : (
                         <Text
-                        style={{
-                          fontSize: 9,
-                          color: "#fff",
-                          top: 3,
-                          opacity: 0.6,
-                          position: "relative",
-                          right: 80,
-                          backgroundColor: "red",
-                          padding: 3,
-                          borderRadius: 5,
-                        }}
-                      >
-                        {datafromComponent.status}
-                      </Text>
+                          style={{
+                            fontSize: 9,
+                            color: "#fff",
+                            top: 3,
+                            opacity: 0.6,
+                            position: "relative",
+                            right: 80,
+                            backgroundColor: "red",
+                            padding: 3,
+                            borderRadius: 5,
+                          }}
+                        >
+                          {datafromComponent.status}
+                        </Text>
                       )}
-                      
                     </View>
                   </View>
 
                   {datafromComponent.status === "completed" ? (
-                    <View
-                    >
+                    <View>
                       <View>
-                      <TouchableOpacity
-                        style={styles.btn2}
-                        onPress={() => {
-                          const data = {
-                            ...datafromComponent, 
-                            imageUri: "this is a scam image",
-                            parentId: parentId, 
-                            childName: childName,
-                          };
-  
-                         sendMoneyToDatabase(data)
-                        }}
-                      >
-                      {sendMoneyLoading ? (
-                        <ActivityIndicator /> // Show the loading indicator
-                      ) : (
-                        <Text style={{ fontSize: 12 }}>
-                        Reward {datafromComponent.amount}
-                        </Text>
-                      
-                      )}
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.btn2,{backgroundColor:'#fff',borderWidth:0}]}
-                 onPress={()=>{
-                  redoTask(datafromComponent._id)
-                 }}
-                        >
-                        <Text style={{ fontSize: 12 }}>
-                        Mark as incomplete                   
-                             </Text>
-                      </TouchableOpacity>
-                      </View>
-  
-                      </View>
+                        <TouchableOpacity
+                          style={styles.btn2}
+                          onPress={() => {
+                            const data = {
+                              ...datafromComponent,
+                              imageUri: "this is a scam image",
+                              parentId: parentId,
+                              childName: childName,
+                            };
 
-                    ) : (
-                      <View>
+                            sendMoneyToDatabase(data);
+                          }}
+                        >
+                          {sendMoneyLoading ? (
+                            <ActivityIndicator /> // Show the loading indicator
+                          ) : (
+                            <Text style={{ fontSize: 12 }}>
+                              Reward {datafromComponent.amount}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.btn2,
+                            { backgroundColor: "#fff", borderWidth: 0 },
+                          ]}
+                          onPress={() => {
+                            redoTask(datafromComponent._id);
+                          }}
+                        >
+                          <Text style={{ fontSize: 12 }}>
+                            Mark as incomplete
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <View>
                       <TouchableOpacity
                         style={styles.btn2}
                         onPress={() => {
@@ -370,28 +313,26 @@ alert('Marked as undone')
                             parentId: parentId, // Add new property 'parentId'
                             childName: childName, // Add new property 'childName'
                           };
-               
-                         sendMoneyToDatabase(data)
+
+                          sendMoneyToDatabase(data);
                         }}
                       >
-                      {sendMoneyLoading ? (
-                        <ActivityIndicator /> // Show the loading indicator
-                      ) : (
-                        <Text style={{ fontSize: 12 }}>
-                        Completed ? Reward {datafromComponent.amount}
-                        </Text>
-                                         
-                      )} 
+                        {sendMoneyLoading ? (
+                          <ActivityIndicator /> // Show the loading indicator
+                        ) : (
+                          <Text style={{ fontSize: 12 }}>
+                            Completed ? Reward {datafromComponent.amount}
+                          </Text>
+                        )}
                       </TouchableOpacity>
                       <TouchableOpacity
-                        style={[styles.btn2,{backgroundColor:'#fff',borderWidth:0}]}
-                       >
-                    
-                      </TouchableOpacity>
+                        style={[
+                          styles.btn2,
+                          { backgroundColor: "#fff", borderWidth: 0 },
+                        ]}
+                      ></TouchableOpacity>
                     </View>
-  
-                    )}
-
+                  )}
                 </View>
               </View>
             </View>
@@ -399,118 +340,107 @@ alert('Marked as undone')
         )}
       </View>
 
-     {isAddTaskVisible ? <View style={styles.addTaskButton}>
-     <TouchableOpacity style={styles.button} onPress={() => {
-       navigation.navigate("Add Task");
-     }}>
-       <MaterialIcons name="add" size={24} color="#000" />
-     </TouchableOpacity>
-   </View> : null
-
-     } 
+      {isAddTaskVisible ? (
+        <View style={styles.addTaskButton}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate("Add Task");
+            }}
+          >
+            <MaterialIcons name="add" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </View>
-        
-  
   );
 }
 function Item(props) {
-
   const sendDataToParent = () => {
     props.popup(props.data.item);
   };
 
   return (
-    <View style={{height:110}}>
+    <View style={{ height: 110 }}>
       <TouchableOpacity onPress={sendDataToParent}>
-      
-      <View>
-       
-        
-     
-          <View style={[styles.popupContent,{height:110}]}>
-          <View style={styles.cardContainer}>
-            <View
-              style={[
-                blackstyles.PanelItemContainer,
-                { width: "73%", marginTop: 30 },
-              ]}
-            >
+        <View>
+          <View style={[styles.popupContent, { height: 110 }]}>
+            <View style={styles.cardContainer}>
               <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "baseline",
-                  flexDirection: "row",
-                }}
+                style={[
+                  blackstyles.PanelItemContainer,
+                  { width: "73%", marginTop: 30 },
+                ]}
               >
                 <View
                   style={{
-                    padding: 6,
                     flexDirection: "row",
-                    alignItems: "stretch",
-                    justifyContent: "space-evenly",
-                    //   backgroundColor:'#333',
-                    width: "100%",
-                    paddingHorizontal: 10,
+                    alignItems: "baseline",
+                    flexDirection: "row",
                   }}
                 >
-                  <Image
-                    source={require("../../assets/icons/bill.png")}
-                    resizeMode="contain"
-                    style={[styles.btnImage, { tintColor: COLORS.blue }]}
-                  />
-                  <Text style={styles.popupBoldText}>
-                  {props.data.item.name}
-                  </Text>
+                  <View
+                    style={{
+                      padding: 6,
+                      flexDirection: "row",
+                      alignItems: "stretch",
+                      justifyContent: "space-evenly",
+                      //   backgroundColor:'#333',
+                      width: "100%",
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Image
+                      source={require("../../assets/icons/bill.png")}
+                      resizeMode="contain"
+                      style={[styles.btnImage, { tintColor: COLORS.blue }]}
+                    />
+                    <Text style={styles.popupBoldText}>
+                      {props.data.item.name}
+                    </Text>
+                  </View>
+
+                  {props.data.item.status === "completed" ? (
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        color: "#000",
+                        top: 3,
+                        opacity: 0.6,
+                        position: "relative",
+                        right: 80,
+                        backgroundColor: "lightgreen",
+                        padding: 2,
+                        paddingHorizontal: 7,
+                        borderRadius: 5,
+                      }}
+                    >
+                      {props.data.item.status}
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        color: "#fff",
+                        top: 3,
+                        opacity: 0.6,
+                        position: "relative",
+                        right: 80,
+                        backgroundColor: "red",
+                        padding: 2,
+                        paddingHorizontal: 7,
+                        borderRadius: 5,
+                      }}
+                    >
+                      {props.data.item.status}
+                    </Text>
+                  )}
                 </View>
-
-                {props.data.item.status === "completed" ? (
-                  <Text
-                  style={{
-                    fontSize: 9,
-                    color: "#000",
-                    top: 3,
-                    opacity: 0.6,
-                    position: "relative",
-                    right: 80,
-                    backgroundColor: "lightgreen",
-                    padding: 2,
-                    paddingHorizontal:7,
-                    borderRadius: 5,
-                  }}
-                >
-                {props.data.item.status}
-
-                </Text>
-                ) : (
-                  <Text
-                  style={{
-                    fontSize: 9,
-                    color: "#fff",
-                    top: 3,
-                    opacity: 0.6,
-                    position: "relative",
-                    right: 80,
-                    backgroundColor: "red",
-                    padding: 2,
-                    paddingHorizontal:7,
-                    borderRadius: 5,
-                  }}
-                >
-                  {props.data.item.status}
-                </Text>
-                )}
               </View>
-            </View>
-  <View>
+              <View></View>
             </View>
           </View>
-          </View>
-
-     
-
-        
-            </View>
-      
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -546,30 +476,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   addTaskButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 18,
     right: 18,
   },
-  
-button: {
-  backgroundColor: COLORS.secondarygreen,
-  borderColor: COLORS.secondarygreen,
-color:'#000',
-  width: 56,
-  height: 56,
-  borderRadius: 28,
-  alignItems: 'center',
-  justifyContent: 'center',
-  elevation: 4,
-},
+
+  button: {
+    backgroundColor: COLORS.secondarygreen,
+    borderColor: COLORS.secondarygreen,
+    color: "#000",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+  },
   popupContainer: {
     position: "absolute",
     bottom: 0,
-height:'45%',
-width:'100%',
+    height: 450,
+    backgroundColor: "#fff",
+    width: "100%",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-  
+
     opacity: 1,
   },
   crossButton: {
@@ -586,13 +517,12 @@ width:'100%',
     justifyContent: "center",
     alignItems: "center",
     padding: "5%",
-    paddingTop:0,
+    paddingTop: 0,
     paddingBottom: 0,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     opacity: 1,
     backgroundColor: "#fff",
-
   },
   popupHeader: {
     display: "flex",
@@ -600,7 +530,7 @@ width:'100%',
     alignItems: "center",
     flexDirection: "row",
     alignItems: "stretch",
-    marginTop:'5%',
+    marginTop: "5%",
     justifyContent: "space-between",
   },
   btnImage: {

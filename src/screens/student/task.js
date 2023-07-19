@@ -11,7 +11,15 @@ import {
   Image,
   ActivityIndicator,
   Animated,
+  ScrollView,
+
 } from "react-native";
+import {
+  GestureHandlerRootView,
+  NativeViewGestureHandler,
+  gestureHandlerRootHOC,
+} from "react-native-gesture-handler";
+
 import { pagestyles } from "../../styles/pagesStyles";
 import {
   useGetTasksQuery,
@@ -24,9 +32,8 @@ import * as FileSystem from "expo-file-system";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { useEffect } from "react";
-import { color } from "react-native-reanimated";
 import { COLORS } from "../../constants";
-import { ScrollView } from "react-native-gesture-handler";
+
 
 export function Tasks({ navigation }) {
   const studentId = useSelector((state) => state.account.account.userId);
@@ -41,13 +48,13 @@ export function Tasks({ navigation }) {
   const [showPendingTasks, setShowPendingTasks] = useState(true);
   const [showInReviewTasks, setShowInReviewTasks] = useState(false);
   const [datafromComponent, setData] = useState([]);
-const [bottomBorder, setbottomBorder] = useState(COLORS.blue)
-const [textColor, settextColor] = useState('#000')
-const [opacityVal, setopacityVal] = useState(1)
+  const [bottomBorder, setbottomBorder] = useState(COLORS.blue);
+  const [textColor, settextColor] = useState("#000");
+  const [opacityVal, setopacityVal] = useState(1);
 
-const [bottomBorder2, setbottomBorder2] = useState(COLORS.lightGreen)
-const [textColor2, settextColor2] = useState('#333')
-const [opacityVal2, setopacityVal2] = useState(0.6)
+  const [bottomBorder2, setbottomBorder2] = useState(COLORS.lightGreen);
+  const [textColor2, settextColor2] = useState("#333");
+  const [opacityVal2, setopacityVal2] = useState(0.6);
 
   const fileLaunch = async () => {
     // No permissions request is necessary for launching the image library
@@ -63,7 +70,7 @@ const [opacityVal2, setopacityVal2] = useState(0.6)
       let base64 = await FileSystem.readAsStringAsync(asset.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
-
+console.log(base64,'this is base64');
       const data = {
         ...datafromComponent, // Spread the existing properties
         imageUri: base64, // Add new property 'imageUri'
@@ -135,7 +142,7 @@ const [opacityVal2, setopacityVal2] = useState(0.6)
     };
   }, []);
   if (isLoading) {
-    return <ActivityIndicator size={'large'} style={{flex:1}} />;
+    return <ActivityIndicator size={"large"} style={{ flex: 1 }} />;
   }
   if (error) {
     return <Text>Error{error.error}</Text>;
@@ -143,202 +150,117 @@ const [opacityVal2, setopacityVal2] = useState(0.6)
   console.log(error2, isLoading2);
   const Taskss = data.data;
   let pendingData = Taskss.filter((item) => item.status === "pending");
-  let approveTask = Taskss.filter(
-    (item) => item.status === "completed"
-  );
+  let approveTask = Taskss.filter((item) => item.status === "completed");
 
-  if (pendingData.length === 0) {
-    pendingData = [{ name: "No Pending Tasks Yet", amount: " ", status: '' }];
-  }
+  // if (pendingData.length === 0) {
+  //   pendingData = [{ name: "No Pending Tasks Yet", amount: " ", status: '' }];
+  // }
 
-  if (approveTask.length === 0) {
-    approveTask = [
-      { name: "No Tasks in Review Yet", amount: " ", status: null },
-    ];
-  }
+  // if (approveTask.length === 0) {
+  //   approveTask = [
+  //     { name: "No Tasks in Review Yet", amount: " ", status: null },
+  //   ];
+  // }
 
   return (
     <View style={[pagestyles.container]}>
       <View>
-      <StatusBar />
-        <View style={{ marginBottom: 100,marginTop:30 }}>
+        <StatusBar />
+        <View style={{ marginBottom: 190, marginTop: 30 }}>
           <View style={styles.body}>
             <TouchableOpacity
               onPress={() => {
                 setShowPendingTasks(true);
                 setShowInReviewTasks(false);
 
-                setbottomBorder(COLORS.blue)
-                settextColor('#000')
-                setopacityVal(1)
-   
-                setbottomBorder2(COLORS.lightGreen)
-                settextColor2('#333')
-                setopacityVal2(0.6)
+                setbottomBorder(COLORS.blue);
+                settextColor("#000");
+                setopacityVal(1);
+
+                setbottomBorder2(COLORS.lightGreen);
+                settextColor2("#333");
+                setopacityVal2(0.6);
               }}
             >
-              <Text style={[styles.bodyTxt,{borderBottomColor:bottomBorder,color:textColor,opacity:opacityVal}]}>Assigned</Text>
+              <Text
+                style={[
+                  styles.bodyTxt,
+                  {
+                    borderBottomColor: bottomBorder,
+                    color: textColor,
+                    opacity: opacityVal,
+                  },
+                ]}
+              >
+                Assigned
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 setShowPendingTasks(false);
                 setShowInReviewTasks(true);
-             setbottomBorder2(COLORS.blue)
-             settextColor2('#000')
-             setopacityVal2(1)
+                setbottomBorder2(COLORS.blue);
+                settextColor2("#000");
+                setopacityVal2(1);
 
-             setbottomBorder(COLORS.lightGreen)
-             settextColor('#333')
-             setopacityVal(0.6)
+                setbottomBorder(COLORS.lightGreen);
+                settextColor("#333");
+                setopacityVal(0.6);
               }}
             >
-              <Text style={[styles.bodyTxt,{borderBottomColor:bottomBorder2,color:textColor2,opacity:opacityVal2}]}>In Review</Text>
+              <Text
+                style={[
+                  styles.bodyTxt,
+                  {
+                    borderBottomColor: bottomBorder2,
+                    color: textColor2,
+                    opacity: opacityVal2,
+                  },
+                ]}
+              >
+                In Review
+              </Text>
             </TouchableOpacity>
           </View>
-          <View style={{marginTop:30}}>
-          {showPendingTasks && (
-            <FlatList
-              data={pendingData}
-              numColumns={1}
-              renderItem={(item) => <Item data={item} popup={togglePopup} />}
-            />
-          )}
-          {showInReviewTasks && (
-            <FlatList
-              data={approveTask}
-              numColumns={1}
-              renderItem={(item) => <Item data={item} popup={togglePopup} />}
-            />
-          )}
+          <View style={{ marginTop: 30 }}>
+            {showPendingTasks && (
+              <FlatList
+                data={pendingData}
+                numColumns={1}
+                renderItem={(item) => <Item data={item} popup={togglePopup} />}
+              />
+            )}
+            {showInReviewTasks && (
+              <FlatList
+                data={approveTask}
+                numColumns={1}
+                renderItem={(item) => <Item data={item} popup={togglePopup} />}
+              />
+            )}
           </View>
         </View>
       </View>
       {showPopup && <View style={styles.overlay} />}
 
       {showPopup && (
-        <Animated.View style={[styles.popupContainer, { opacity }]}>
-          <TouchableOpacity onPress={hidePopup} style={styles.crossButton}>
-            <Text style={{ fontSize: 19, color: "white" }}>X</Text>
-          </TouchableOpacity>
-
-          <ScrollView style={styles.popupContainer}>
-            {/* Cross button */}
-
-            {/* Popup content */}
-            <View style={styles.popupContent}>
-              <View style={styles.popupHeader}>
-                <View>
-                  <Text style={styles.popupBoldText}>My Task</Text>
-                </View>
-                <View>
-                  <Text>{datafromComponent.amount}</Text>
-                </View>
-              </View>
-              <View style={styles.cardContainer}>
-                <View
-                  style={[
-                    blackstyles.PanelItemContainer,
-                    { width: "73%", marginTop: 30 },
-                  ]}
-                >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "baseline",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <View
-                      style={{
-                        padding: 6,
-                        flexDirection: "row",
-                        alignItems: "stretch",
-                        justifyContent: "space-around",
-                        //   backgroundColor:'#333',
-                        width: "100%",
-                        paddingHorizontal: 10,
-                      }}
-                    >
-                      <Image
-                        source={require("../../assets/icons/bill.png")}
-                        resizeMode="contain"
-                        style={[styles.btnImage, { tintColor: COLORS.blue }]}
-                      />
-                      <Text style={[styles.popupBoldText,{paddingLeft:30}]}>
-                        {datafromComponent.name}
-                      </Text>
-                    </View>
-
-                   
-                  </View>
-                </View>
-                <View
-                  style={[
-                    blackstyles.PanelItemContainer,
-                    {
-                      padding: 14,
-                      maxWidth: "89%",
-                      justifyContent: "space-around",
-                    },
-                  ]}
-                >
-                  <View style={{ padding: 0 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "400" }}>
-                      Mark this task complete or upload photo and send it to
-                      your parent for review. Parent will pay poket money on
-                      approving this task.
-                    </Text>
-                  </View>
-                </View>
-                {datafromComponent.status === "pending" && (
-                  <View>
-                  <TouchableOpacity style={styles.btn3} onPress={fileLaunch}>
-                    <MaterialIcons
-                      name="file-upload"
-                      styles={{ padding: 5 }}
-                      size={20}
-                      color="#000"
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.btn2}
-                    onPress={() => {
-                      const data = {
-                        ...datafromComponent, // Spread the existing properties
-                        imageUri: "this is a scam image", // Add new property 'imageUri'
-                        parentId: parentId, // Add new property 'parentId'
-                        childName: name, // Add new property 'childName'
-                      };
-
-                      uploadToDatabase(data);
-                    }}
-                  >
-                    <Text style={{ fontSize: 12 }}>
-                      I have completed the task
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                )  }
-             
-              </View>
-            </View>
-          </ScrollView>
-        </Animated.View>
+       // console.log('This is data from Component',datafromComponent)
+       <PopupContainer  datafromComponent={datafromComponent} fileLaunch={fileLaunch} opacity={opacity} uploadToDatabase={uploadToDatabase} hidePopup={hidePopup} />
       )}
     </View>
   );
 }
 //Mark this task complete and send it to your parent for review
 
-function Item(props) {
+const Item = (props) => {
   const item = props.data;
-  
+
   const sendDataToParent = () => {
+console.log(item,'This is is item');
     props.popup(item);
   };
   console.log(item.item);
   return (
-    <View style={{marginHorizontal:'5%',width:'90%'}}>
+    <View style={{ marginHorizontal: "5%", width: "90%" }}>
       <TouchableOpacity onPress={sendDataToParent}>
         <View style={blackstyles.PanelItemContainer}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -347,43 +269,45 @@ function Item(props) {
               <Text style={{ fontSize: 19, color: COLORS.black }}>
                 {props.data.item.name}
               </Text>
-             {props.data.item.status === "pending" && (
-              <Text
-              style={{  fontSize: 9,
-                fontSize: 9,
-                color: "#000",
-                opacity: 0.6,
-                right: 0,
-                backgroundColor: "red",
-                padding: 5,
-                borderRadius: 5,
-                width:60,
-                margin:10,
-                marginBottom:0,
-                
-                        }}
-            >  {props.data.item.status}
-            </Text>
-             )}
-             {props.data.item.status === "completed" && (
-              <Text
-              style={{
-                fontSize: 9,
-                color: "#000",
-                opacity: 0.6,
-                right: 0,
-                backgroundColor: "lightgreen",
-                padding: 5,
-                borderRadius: 5,
-                width:60,
-                margin:10,
-                marginBottom:0,
-                
-                        }}
-            >  {props.data.item.status}
-            </Text>
-             )}
-              
+              {props.data.item.status === "pending" && (
+                <Text
+                  style={{
+                    fontSize: 9,
+                    fontSize: 9,
+                    color: "#000",
+                    opacity: 0.6,
+                    right: 0,
+                    backgroundColor: "red",
+                    padding: 5,
+                    borderRadius: 5,
+                    width: 60,
+                    margin: 10,
+                    marginBottom: 0,
+                  }}
+                >
+                  {" "}
+                  {props.data.item.status}
+                </Text>
+              )}
+              {props.data.item.status === "completed" && (
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: "#000",
+                    opacity: 0.6,
+                    right: 0,
+                    backgroundColor: "lightgreen",
+                    padding: 5,
+                    borderRadius: 5,
+                    width: 60,
+                    margin: 10,
+                    marginBottom: 0,
+                  }}
+                >
+                  {" "}
+                  {props.data.item.status}
+                </Text>
+              )}
             </View>
           </View>
           <View style={{ marginRight: 10 }}></View>
@@ -432,10 +356,10 @@ const styles = StyleSheet.create({
   },
   popupContainer: {
     position: "absolute",
-    bottom: 0,
+    bottom: -100,
     width: "100%",
     height: height * 0.5,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     elevation: 5,
@@ -464,7 +388,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     alignItems: "stretch",
-
   },
   btnImage: {
     height: "45%",
@@ -501,13 +424,135 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     padding: 10,
     width: "90%",
-    marginHorizontal:'5%',
-borderBottomWidth:0,
-backgroundColor:COLORS.lightGreen,
-borderRadius:20  },
+    marginHorizontal: "5%",
+    borderBottomWidth: 0,
+    backgroundColor: COLORS.lightGreen,
+    borderRadius: 20,
+  },
   bodyTxt: {
     paddingBottom: 16,
     borderBottomColor: COLORS.blue,
     borderBottomWidth: 2,
   },
 });
+
+const PopupContainer = ({datafromComponent,fileLaunch,uploadToDatabase,opacity,hidePopup}) => {
+console.log(datafromComponent,fileLaunch,uploadToDatabase,'this is data from component')
+const name = useSelector((state) => state.account.account.name);
+const parentId = useSelector((state) => state.account.account.parentId);
+
+  return (  
+
+<GestureHandlerRootView>
+  <Animated.View style={[styles.popupContainer, { opacity }]}>
+  <TouchableOpacity onPress={hidePopup} style={styles.crossButton}>
+    <Text style={{ fontSize: 19, color: "white" }}>X</Text>
+  </TouchableOpacity>
+
+  <ScrollView >
+    {/* Cross button */}
+
+    {/* Popup content */}
+    <View style={styles.popupContent}>
+      <View style={styles.popupHeader}>
+        <View>
+          <Text style={styles.popupBoldText}>My Task</Text>
+        </View>
+        <View>
+          <Text>{datafromComponent.amount}</Text>
+        </View>
+      </View>
+      <View style={styles.cardContainer}>
+        <View
+          style={[
+            blackstyles.PanelItemContainer,
+            { width: "73%", marginTop: 30 },
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "baseline",
+              flexDirection: "row",
+            }}
+          >
+            <View
+              style={{
+                padding: 6,
+                flexDirection: "row",
+                alignItems: "stretch",
+                justifyContent: "space-around",
+                //   backgroundColor:'#333',
+                width: "100%",
+                paddingHorizontal: 10,
+              }}
+            >
+              <Image
+                source={require("../../assets/icons/bill.png")}
+                resizeMode="contain"
+                style={[styles.btnImage, { tintColor: COLORS.blue }]}
+              />
+              <Text style={[styles.popupBoldText, { paddingLeft: 30 }]}>
+                {datafromComponent.name}
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={[
+            blackstyles.PanelItemContainer,
+            {
+              padding: 14,
+              maxWidth: "89%",
+              justifyContent: "space-around",
+            },
+          ]}
+        >
+          <View style={{ padding: 0 }}>
+            <Text style={{ fontSize: 12, fontWeight: "400" }}>
+              Mark this task complete or upload photo and send it to
+              your parent for review. Parent will pay poket money on
+              approving this task.
+            </Text>
+          </View>
+        </View>
+        {datafromComponent.status === "pending" && (
+          <View>
+            <TouchableOpacity style={styles.btn3} onPress={fileLaunch}>
+              <MaterialIcons
+                name="file-upload"
+                styles={{ padding: 5 }}
+                size={20}
+                color="#000"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btn2}
+              onPress={() => {
+                const data = {
+                  ...datafromComponent, // Spread the existing properties
+                  imageUri: "this is a scam image", // Add new property 'imageUri'
+                  parentId: parentId, // Add new property 'parentId'
+                  childName: name, // Add new property 'childName'
+                };
+
+                uploadToDatabase(data);
+              }}
+            >
+              <Text style={{ fontSize: 12 }}>
+                I have completed the task
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  </ScrollView>
+</Animated.View>
+ </GestureHandlerRootView>
+
+  )}
+
+
+
+

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import Keypad from "react-native-keypad";
 import { useSelector } from "react-redux";
 import { COLORS } from "../../constants";
 import { styles } from "../../styles/StandardStyles";
@@ -57,7 +56,7 @@ const handleForgetPin =()=>{
   //for new user
 const handleOtpSubmit =()=>{
     console.log('hii new User');
-navigation.navigate('Details Screen')
+navigation.navigate('Details Screen',{phone_number:route.params.phone_number})
 }
   function handleSubmit() {
     console.log("Submitted pin:", pin);

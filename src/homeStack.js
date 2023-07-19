@@ -32,8 +32,8 @@ import CourseDetailsPage from "./screens/student/courseDetails";
 import UnderstandCoursePage from "./screens/student/understandCourse";
 import UnderstandCoursePage2 from "./screens/student/understandCourse2";
 import PinPage from "./screens/authentication/enterLoginpin";
+//import HomeNew from "./screens/authentication/home";
 import UserDetailScreen from "./screens/authentication/details";
-import { Home2 } from "./screens/student/home2";
 
 const Stack = createNativeStackNavigator();
 
@@ -227,6 +227,7 @@ component={CourseDetailsPage}
           }}
         />
 
+       
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}

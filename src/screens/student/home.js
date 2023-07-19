@@ -91,7 +91,7 @@ if (error) {
   return <Text>Error{error.error}</Text>;
 }
 const notificationData=data.data
-
+console.log('start',notificationData,'this is notification data');
   const tasksLength= notificationData.length
   console.log(tasksLength);
 

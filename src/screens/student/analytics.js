@@ -64,7 +64,7 @@ const { ExpSum,IncSum,SavingsSum,totalAmt,totalAmt2,totalAmt3,uniquemonth,unique
 
 const wantedGraphicData = [
 
-  { x: `Income ${IncSum-3000}`, y: IncSum-5000},
+  { x: `Income ${IncSum}`, y: IncSum},
 
 
   { x: `Exp:${ExpSum}`, y: ExpSum},
@@ -80,7 +80,7 @@ const wantedGraphicData = [
     datasets: [
       {
         data: totalAmt,
-        strokeWidth: 5, // optional
+        strokeWidth: 2, // optional
       },
       // {
       //   data: totalAmt2,
@@ -117,7 +117,7 @@ const wantedGraphicData = [
             innerRadius={30}
             width={395}
             height={250}
-            labelRadius={105} 
+            labelRadius={80} 
             labels={({ datum }) => `${datum.x}`}
           labelPosition={({ index }) => index ? "centroid" : "start"}
 
