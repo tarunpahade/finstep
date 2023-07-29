@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi ,fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const baseUrl = "https://backend-5ig7.onrender.com/";
 //const baseUrl = "http://192.168.106.253:5000/";
 
@@ -218,3 +218,4 @@ export const {
   useGetSavingTransactionsQuery
 ,useNewAccountMutation
 } = appSlice;
+
