@@ -2,7 +2,6 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./screens/student/home";
-import Icon from "react-native-vector-icons/FontAwesome";
 import { Transactions } from "./screens/student/transaction";
 import { Analytics } from "./screens/student/analytics";
 import { Savings } from "./screens/student/savings";
@@ -10,8 +9,6 @@ import { Tasks } from "./screens/student/task";
 import { Payment } from "./screens/student/payment";
 import CameraScreen from "./screens/student/camera";
 import { ParentHome } from "./screens/parent/parentHome";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { COLORS } from "./constants";
 import { ParentFund } from "./screens/parent/parentFunds";
 import { ParentTask } from "./screens/parent/parentTask";
 import ImageViewer from "./screens/parent/imageViewer";
@@ -21,7 +18,6 @@ import { QRCodeScanner } from "./screens/student/qrCode";
 import { Request } from "./screens/student/request";
 import { AddMoneyToAccount } from "./screens/student/addmoneyToAccount";
 import LoginScreen from "./screens/parent/login";
-import { BalanceScreen } from "./screens/student/balanceScreen";
 import { ProfileScreen } from "./screens/student/profilepage";
 import { StudentForm } from "./screens/parent/studentForm";
 import  FundDetailsPage from "./screens/parent/fundDetails";
@@ -30,21 +26,9 @@ import CoursePage from "./screens/student/courses";
 import { Text, View } from "react-native";
 import CourseDetailsPage from "./screens/student/courseDetails";
 import UnderstandCoursePage from "./screens/student/understandCourse";
-import UnderstandCoursePage2 from "./screens/student/understandCourse2";
 import PinPage from "./screens/authentication/enterLoginpin";
 //import HomeNew from "./screens/authentication/home";
 import UserDetailScreen from "./screens/authentication/details";
-
-import Home1 from "./screens/2.0/Home1";
-import Wallet2 from "./screens/2.0/Wallet2";
-import MoneySent from "./screens/2.0/MoneySent";
-import Onboarding1 from "./screens/2.0/Onboarding1";
-import Onboarding2 from "./screens/2.0/Onboarding2";
-import Onboarding3 from "./screens/2.0/Onboarding3";
-import SendTo from "./screens/2.0/SendTo";
-
-
-
 
 const Stack = createNativeStackNavigator();
 
@@ -376,63 +360,3 @@ component={CourseDetailsPage}
 }
 
 export default AppRoutes;
-
-// function App() {
-//   const screenOptions = {
-//     unmountOnBlur: false,
-//     headerShown: false,
-//     tabBarStyle: {
-//       backgroundColor: COLORS.darkblue,
-//       height: 50,
-//     },
-//     tabBarItemStyle: {
-//       backgroundColor: COLORS.darkblue,
-//       margin: 3,
-//       borderRadius: 8,
-//       width: 10,
-//       borderRadius: 20,
-//     },
-//   };
-//   const sceneContainerStyle = {
-//     backgroundColor: "#95a5a6",
-//   };
-//   return (
-//     <Tab.Navigator
-//       {...{ screenOptions, sceneContainerStyle }}
-//       options={{
-//         headerShown: false,
-
-//         headerTitleStyle: { fontSize: 12 },
-//       }}
-//     >
-//       <Tab.Screen
-//         name="StudentHome"
-//         component={Home}
-//         options={{
-//           title: "Home",
-//           tabBarIcon: ({ color, size }) => (
-//             <Icon name="home" color={color} size={size} />
-//           ),
-//           headerShown: false,
-//         }}
-//       />
-
-//       <Tab.Screen
-//         name="Money"
-//         component={Money}
-//         options={{
-//           title: "Money",
-
-//           tabBarIcon: ({ color, size }) => (
-//             <Icon name="bank" color={color} size={size} />
-//           ),
-//           elevation: 0, // remove shadow on Android
-//           shadowOpacity: 0, // remove shadow on iOS
-
-//           headerTitleAlign: "center",
-//         }}
-//       />
-
-//     </Tab.Navigator>
-//   );
-// }
