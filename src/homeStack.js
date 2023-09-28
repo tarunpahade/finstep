@@ -301,49 +301,6 @@ component={CourseDetailsPage}
        
        
     
-            <Stack.Screen
-              name="Home1"
-              component={Home1}
-              options={{ headerShown: false }}
-            />
-       
-          
-            <Stack.Screen
-              name="Wallet2"
-              component={Wallet2}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="MoneySent"
-              component={MoneySent}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-            name="Send To"
-            component={SendTo}
-            options={{ headerShown: false }}
-          />
-            <Stack.Screen
-              name="SendMoney"
-              component={SendMoney}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Onboarding3"
-              component={Onboarding3}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Onboarding2"
-              component={Onboarding2}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Onboarding1"
-              component={Onboarding1}
-              options={{ headerShown: false }}
-            />
-    
         <Stack.Screen
           name="Parent Fund"
           component={ParentFund}
