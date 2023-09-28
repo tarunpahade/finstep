@@ -35,6 +35,17 @@ import PinPage from "./screens/authentication/enterLoginpin";
 //import HomeNew from "./screens/authentication/home";
 import UserDetailScreen from "./screens/authentication/details";
 
+import Home1 from "./screens/2.0/Home1";
+import Wallet2 from "./screens/2.0/Wallet2";
+import MoneySent from "./screens/2.0/MoneySent";
+import Onboarding1 from "./screens/2.0/Onboarding1";
+import Onboarding2 from "./screens/2.0/Onboarding2";
+import Onboarding3 from "./screens/2.0/Onboarding3";
+import SendTo from "./screens/2.0/SendTo";
+
+
+
+
 const Stack = createNativeStackNavigator();
 
 function AppRoutes() {
@@ -303,6 +314,52 @@ component={CourseDetailsPage}
         ),
           }}
       />
+       
+       
+    
+            <Stack.Screen
+              name="Home1"
+              component={Home1}
+              options={{ headerShown: false }}
+            />
+       
+          
+            <Stack.Screen
+              name="Wallet2"
+              component={Wallet2}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MoneySent"
+              component={MoneySent}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+            name="Send To"
+            component={SendTo}
+            options={{ headerShown: false }}
+          />
+            <Stack.Screen
+              name="SendMoney"
+              component={SendMoney}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Onboarding3"
+              component={Onboarding3}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Onboarding2"
+              component={Onboarding2}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Onboarding1"
+              component={Onboarding1}
+              options={{ headerShown: false }}
+            />
+    
         <Stack.Screen
           name="Parent Fund"
           component={ParentFund}
@@ -312,6 +369,7 @@ component={CourseDetailsPage}
             headerTitleAlign: "center",
           }}
         />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );
