@@ -1,6 +1,6 @@
 import { createApi ,fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const baseUrl = "https://backend-finstep-h59p.vercel.app/";
-//const baseUrl = "http://192.168.106.253:5000/";
+//const baseUrl = "http://192.168.203.253:3000/";
 
 export const appSlice = createApi({
   reducerPath: "api",

@@ -1,24 +1,51 @@
-import { useNavigation } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View,Text } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StatusBar,StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const ImageViewer = (props) => {
-    const image=props.route.params.image
-  const navigation=useNavigation()
-const onClose=()=>{
-navigation.navigate("Parent Task")
-}
-    return (
+  const { imageUri } = props.route.params;
+  const navigation = useNavigation();
+
+  const onClose = () => {
+    navigation.navigate("Parent Task");
+  }
+
+  const renderImage = () => {
+    if (imageUri.startsWith('http') || imageUri.startsWith('https')) {
+      // If the image prop is a URI
+      return (
+        <Image
+          style={styles.image}
+          source={{ uri: imageUri }}
+        />
+      );
+    } else if (image.startsWith('data:image')) {
+      // If the image prop is a base64 encoded image
+      return (
+        <Image
+          style={styles.image}
+          source={{ uri: imageUri }}
+        />
+      );
+    } else {
+      // Handle other cases or show an error message
+      return (
+        <Text>Error: Invalid image source</Text>
+      );
+    }
+  };
+
+  return (
     <View style={styles.container}>
-    <StatusBar />
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+      <StatusBar />
+      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
         <Text style={styles.closeButtonText}>X</Text>
       </TouchableOpacity>
-      <Image style={styles.image} source={{ uri: `data:image/png;base64,${image}` }} />
+      {renderImage()}
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

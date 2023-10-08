@@ -29,6 +29,8 @@ import UnderstandCoursePage from "./screens/student/understandCourse";
 import PinPage from "./screens/authentication/enterLoginpin";
 //import HomeNew from "./screens/authentication/home";
 import UserDetailScreen from "./screens/authentication/details";
+import ChooseLoginType from "./screens/authentication/ParentOrStudent";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +45,13 @@ function AppRoutes() {
           },
         }}
       >
+        <Stack.Screen
+      name="ChooseLoginType"
+      component={ChooseLoginType}
+      options={{
+        headerShown: false,
+      }}
+    />
       <Stack.Screen
       name="Register Screen"
       component={RegisterPhone}

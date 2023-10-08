@@ -21,13 +21,10 @@ import {
 import { blackstyles } from "../../styles/blackstyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { ScrollView } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { COLORS } from "../../constants";
-import { Profile } from "../../components/renderProfile/profile";
-import { Tasks } from "../student/task";
 
 export function ParentTask() {
   const studentId = useSelector((state) => state.account.account.userId);
@@ -300,6 +297,25 @@ console.log(Task,'task');
                             Mark as incomplete
                           </Text>
                         </TouchableOpacity>
+                        {datafromComponent.imageUri !== null  ? (
+                        <TouchableOpacity
+                        style={[
+                          styles.btn2,
+                          { backgroundColor: "#fff", borderWidth: 0 },
+                        ]}
+                        onPress={() => {
+                          navigation.navigate('ImageViewer', { imageUri: datafromComponent.imageUri });
+                        }}
+                      >
+                        <Text style={{ fontSize: 12 }}>
+                          View Uploaded Image
+                        </Text>
+                      </TouchableOpacity>
+                      
+                        ) : null
+                      
+
+                        }
                       </View>
                     </View>
                   ) : (
